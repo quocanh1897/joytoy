@@ -23,7 +23,7 @@ The shipped artifact is a **single HTML file** that works offline and opens on a
 
 ### When changing the UI or data pipeline
 
-1. Edit source (`catalog.template.html`, `build_catalog.py`, scraper data, or `vnd-catalog/stock_data.json`).
+1. Edit source (`catalog.template.html`, `build_catalog.py`, scraper data, or `warhammer-catalog/stock_data.json`).
 2. Rebuild standalone `catalog.html`.
 3. Confirm file size is reasonable; use `--image-scope thumb` only if the user accepts smaller previews—not linked mode.
 
@@ -117,7 +117,8 @@ git push
 | `warhammer-catalog/build_catalog.py` | Merge scraper + stock → standalone HTML |
 | `warhammer-catalog/catalog.template.html` | Catalog UI shell |
 | `warhammer-catalog/catalog.html` | **Primary deliverable** (standalone) |
-| `vnd-catalog/stock_data.json` | Local VND shop inventory (optional merge) |
+| `warhammer-catalog/stock_data.json` | Local VND shop inventory (optional merge) |
+| `warhammer-catalog/import_stock.py` | Import `Discount.csv` into stock data |
 
 Tech: Python 3, requests, BeautifulSoup, Pillow; static HTML/CSS/vanilla JS.
 

@@ -19,6 +19,7 @@ sys.path.insert(0, str(SCRAPER_DIR))
 from scrape import extract_specs  # noqa: E402
 from size_extract import resolve_display_height_cm  # noqa: E402
 from joytoy_categories import CATEGORY_BY_ID, CATEGORY_ORDER, JOYTOY_CATEGORIES  # noqa: E402
+from stock_match import assign_stock_to_products  # noqa: E402
 
 try:
     from PIL import Image
@@ -26,7 +27,7 @@ except ImportError:  # pragma: no cover
     Image = None  # type: ignore
 
 SCRAPER_JSON = SCRAPER_DIR / "data" / "products.json"
-STOCK_JSON = ROOT / "vnd-catalog" / "stock_data.json"
+STOCK_JSON = Path(__file__).resolve().parent / "stock_data.json"
 TEMPLATE = Path(__file__).resolve().parent / "catalog.template.html"
 OUTPUT = Path(__file__).resolve().parent / "catalog.html"
 OUTPUT_LINKED = Path(__file__).resolve().parent / "catalog-linked.html"
@@ -356,23 +357,18 @@ def format_size(product: dict, size_fields: dict) -> str | None:
     return f"{height:g} cm"
 
 
-def load_stock() -> dict[str, dict]:
+def load_stock_rows() -> list[dict]:
     if not STOCK_JSON.exists():
-        return {}
-    stock_list = json.loads(STOCK_JSON.read_text(encoding="utf-8"))
-    by_upc: dict[str, dict] = {}
-    for row in stock_list:
-        upc = (row.get("upc") or "").strip()
-        if upc:
-            by_upc[upc] = row
-    return by_upc
+        return []
+    return json.loads(STOCK_JSON.read_text(encoding="utf-8"))
 
 
-def build_product(product: dict, stock_by_upc: dict[str, dict]) -> dict:
+def build_product(product: dict, stock_by_slug: dict[str, dict]) -> dict:
     cat_id, label_en, label_vi = detect_category(product)
     images = resolve_images(product)
     upc = (product.get("sku") or "").strip()
-    stock = stock_by_upc.get(upc)
+    slug = (product.get("slug") or "").strip()
+    stock = stock_by_slug.get(slug)
     size_fields = resolve_size_fields(product)
 
     entry: dict = {
@@ -408,9 +404,25 @@ def build_product(product: dict, stock_by_upc: dict[str, dict]) -> dict:
 def build_catalog_data() -> dict:
     catalog_raw = json.loads(SCRAPER_JSON.read_text(encoding="utf-8"))
     products_raw = catalog_raw.get("products") or []
-    stock_by_upc = load_stock()
+    stock_rows = load_stock_rows()
+    stock_by_slug, unmatched_stock, stock_methods = assign_stock_to_products(
+        products_raw, stock_rows
+    )
+    if stock_rows:
+        matched_count = len(stock_rows) - len(unmatched_stock)
+        print(
+            f"Stock match: {matched_count}/{len(stock_rows)} rows → "
+            f"{len(stock_by_slug)} products "
+            f"({', '.join(f'{k}={v}' for k, v in sorted(stock_methods.items()))})"
+        )
+        if unmatched_stock:
+            print(f"  Unmatched stock ({len(unmatched_stock)}):")
+            for row in unmatched_stock[:12]:
+                print(f"    {row.get('sku')}  {row.get('name', '')[:70]}")
+            if len(unmatched_stock) > 12:
+                print(f"    … and {len(unmatched_stock) - 12} more")
 
-    products = [build_product(p, stock_by_upc) for p in products_raw if p.get("name")]
+    products = [build_product(p, stock_by_slug) for p in products_raw if p.get("name")]
 
     categories: dict[str, dict] = {}
     for product in products:

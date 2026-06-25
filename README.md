@@ -10,7 +10,7 @@ The pipeline turns public JoyToy product pages into structured JSON, local image
 flowchart TB
     subgraph sources["External sources"]
         JT[JoyToy.com<br/>Shopify storefront]
-        VND[vnd-catalog/stock_data.json<br/>Local shop inventory]
+        VND[warhammer-catalog/stock_data.json<br/>Local shop inventory]
     end
 
     subgraph scraper["warhammer-scraper"]
@@ -28,9 +28,8 @@ flowchart TB
         CH2[catalog-linked.html<br/>relative image paths]
     end
 
-    subgraph output["Catalogs"]
-        WH[warhammer-catalog/]
-        VN[vnd-catalog/catalog.html<br/>legacy / separate build]
+    subgraph output["Catalog output"]
+        WH[warhammer-catalog/catalog.html<br/>standalone + linked builds]
     end
 
     JT -->|HTTP + BeautifulSoup| SP
@@ -53,7 +52,7 @@ flowchart TB
 
 1. **Scrape** — `scrape.py` walks the Warhammer collection (541 products across paginated listing pages), fetches each product page, and persists metadata plus downloaded gallery and description images.
 2. **Enrich** — Optional post-processing assigns JoyToy sidebar categories, parses figure dimensions from HTML, and runs OCR on marketing photos to recover heights (e.g. “20cm action figure”).
-3. **Build** — `build_catalog.py` merges scraper output with `vnd-catalog/stock_data.json` (matched by UPC/SKU), groups products into factions, and injects JSON + images into `catalog.template.html`.
+3. **Build** — `build_catalog.py` merges scraper output with `warhammer-catalog/stock_data.json` (matched by UPC), groups products into factions, and injects JSON + images into `catalog.template.html`.
 4. **Browse** — Open `catalog.html` (fully portable, images inlined as WebP data URIs) or `catalog-linked.html` (smaller file, requires local image paths).
 
 ## Tech stack
@@ -81,12 +80,11 @@ joytoy/
 │       └── images/             # Per-product image folders
 ├── warhammer-catalog/          # Catalog builder + outputs
 │   ├── build_catalog.py        # Assembles HTML from template + data
+│   ├── import_stock.py         # Discount.csv → stock_data.json
 │   ├── catalog.template.html   # UI shell (search, filters, bilingual)
+│   ├── stock_data.json         # SKU, qty, VND price, deposit
 │   ├── catalog.html            # Standalone build (LFS)
 │   └── catalog-linked.html     # Linked-image build
-└── vnd-catalog/                # Vietnamese shop data
-    ├── stock_data.json         # SKU, qty, VND price, deposit
-    └── catalog.html            # Separate catalog variant
 ```
 
 ## Quick start
@@ -120,6 +118,7 @@ python scrape.py --fix-sizes
 
 ```bash
 cd ../warhammer-catalog
+python import_stock.py ~/Downloads/Discount.csv   # optional: refresh shop stock
 python build_catalog.py           # catalog.html (standalone)
 python build_catalog.py --linked  # catalog-linked.html (faster, smaller)
 ```
@@ -136,7 +135,7 @@ Each scraped product includes:
 - Media: `images`, `description_images`, and local paths after download
 - Categories: `joytoy_category` (when mapped from JoyToy collection pages)
 
-When `vnd-catalog/stock_data.json` is present, matching products gain a `stock` block with VND price, quantity, and deposit for in-shop display.
+When `warhammer-catalog/stock_data.json` is present, matching products gain a `stock` block with VND price, quantity, and deposit for in-shop display.
 
 ## Notes
 
