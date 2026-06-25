@@ -6,47 +6,53 @@ The pipeline turns public JoyToy product pages into structured JSON, local image
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    subgraph sources["External sources"]
-        JT[JoyToy.com<br/>Shopify storefront]
-        VND[vnd-catalog/stock_data.json<br/>Local shop inventory]
-    end
+```plantuml
+@startuml joytoy-architecture
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
 
-    subgraph scraper["warhammer-scraper"]
-        SP[scrape.py]
-        JC[joytoy_categories.py]
-        SE[size_extract.py]
-        PJ[(data/products.json)]
-        IMG[(data/images/)]
-    end
+package "External sources" {
+  component "JoyToy.com\nShopify storefront" as JT
+  component "vnd-catalog/stock_data.json\nLocal shop inventory" as VND
+}
 
-    subgraph builder["warhammer-catalog"]
-        BC[build_catalog.py]
-        TPL[catalog.template.html]
-        CH1[catalog.html<br/>standalone + embedded WebP]
-        CH2[catalog-linked.html<br/>relative image paths]
-    end
+package "warhammer-scraper" {
+  component "scrape.py" as SP
+  component "joytoy_categories.py" as JC
+  component "size_extract.py" as SE
+  database "data/products.json" as PJ
+  folder "data/images/" as IMG
+}
 
-    subgraph output["Catalogs"]
-        WH[warhammer-catalog/]
-        VN[vnd-catalog/catalog.html<br/>legacy / separate build]
-    end
+package "warhammer-catalog" {
+  component "build_catalog.py" as BC
+  component "catalog.template.html" as TPL
+  component "catalog.html\nstandalone + embedded WebP" as CH1
+  component "catalog-linked.html\nrelative image paths" as CH2
+}
 
-    JT -->|HTTP + BeautifulSoup| SP
-    SP --> PJ
-    SP --> IMG
-    JC -->|category mapping| SP
-    SE -->|OCR height labels| SP
+package "Catalogs" {
+  component "warhammer-catalog/" as WH
+  component "vnd-catalog/catalog.html\nlegacy / separate build" as VN
+}
 
-    PJ --> BC
-    IMG --> BC
-    VND --> BC
-    TPL --> BC
-    BC --> CH1
-    BC --> CH2
-    CH1 --> WH
-    CH2 --> WH
+JT -down-> SP : HTTP + BeautifulSoup
+SP -down-> PJ
+SP -down-> IMG
+JC -down-> SP : category mapping
+SE -down-> SP : OCR height labels
+
+PJ -down-> BC
+IMG -down-> BC
+VND -down-> BC
+TPL -down-> BC
+BC -down-> CH1
+BC -down-> CH2
+CH1 -down-> WH
+CH2 -down-> WH
+
+@enduml
 ```
 
 ### Data flow
