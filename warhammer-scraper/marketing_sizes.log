@@ -1,0 +1,25 @@
+/Users/alenguyen/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+  marketing sizes: 25/541
+  marketing sizes: 50/541
+  marketing sizes: 75/541
+  marketing sizes: 100/541
+  marketing sizes: 125/541
+  marketing sizes: 150/541
+  marketing sizes: 175/541
+  marketing sizes: 200/541
+  marketing sizes: 225/541
+  marketing sizes: 250/541
+  marketing sizes: 275/541
+  marketing sizes: 300/541
+  marketing sizes: 325/541
+  marketing sizes: 350/541
+  marketing sizes: 375/541
+  marketing sizes: 400/541
+  marketing sizes: 425/541
+  marketing sizes: 450/541
+  marketing sizes: 475/541
+  marketing sizes: 500/541
+  marketing sizes: 525/541
+  marketing sizes: 541/541
+Updated marketing sizes for 453 products in /Users/alenguyen/Documents/mine/joytoy/warhammer-scraper/data/products.json
