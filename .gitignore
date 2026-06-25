@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .env
-.claude/
+.claude/*
+!.claude/CLAUDE.md
 .playwright-mcp/
 *.zip
