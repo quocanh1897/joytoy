@@ -288,8 +288,9 @@ Initial planned derivative set:
 
 | Use | Count estimate | Output | Target |
 |---|---:|---|---|
-| Card thumbnail | Up to 541 | WebP, max 360×360 | Prefer ≤60 KB each |
-| Gallery/detail | Approximately 6,242 | WebP, max 960 px longest edge | Prefer ≤180 KB each |
+| Card thumbnail | Up to 541 | WebP, max 480×480 | Prefer ≤90 KB each |
+| Gallery/detail | Approximately 6,242 | WebP, max 960 px longest edge | Prefer ≤200 KB each |
+| Gallery preview rail | Approximately 6,242 | WebP, max 240×240 | Prefer ≤24 KB each |
 | Product HTML pages | Up to 541 | HTML | Prefer ≤50 KB each |
 | App/data/support files | Under 200 | HTML/CSS/JS/JSON | Budgeted below |
 
@@ -332,8 +333,11 @@ If the gallery derivative count or total build size proves operationally unsuita
 
 - Generate one static route per product.
 - Put name, price, stock, availability, and the first image in initial HTML.
-- Load gallery thumbnails and noncurrent large images lazily.
-- Preserve previous/next navigation.
+- Make the gallery the dominant layout: full-width stage, large main image, and a preview rail fed by dedicated preview derivatives.
+- Keep the specification record panel compact and collapsible, collapsed by default so browsing starts with the image plates.
+- Provide large previous/next touch zones (and swipe on mobile) so image browsing does not depend on tiny corner buttons.
+- Load gallery preview thumbnails and noncurrent large images lazily.
+- Preserve previous/next navigation and keyboard arrows.
 - Make the product URL directly shareable.
 - Include a link to the original JoyToy product.
 - Add basic title, description, canonical URL, and social metadata.

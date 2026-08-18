@@ -5,6 +5,7 @@ export function initProductGallery(): void {
   const mainImage = document.querySelector<HTMLImageElement>("[data-gallery-main]");
   const counter = document.querySelector<HTMLElement>("[data-gallery-counter]");
   const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-gallery-thumb]")];
+  const stage = document.querySelector<HTMLElement>(".gallery-stage");
   if (!mainImage || !buttons.length) return;
 
   let active = 0;
@@ -29,4 +30,31 @@ export function initProductGallery(): void {
     if (event.key === "ArrowLeft") select(active - 1);
     if (event.key === "ArrowRight") select(active + 1);
   });
+
+  if (!stage || buttons.length < 2) return;
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  stage.addEventListener(
+    "touchstart",
+    (event) => {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    },
+    { passive: true },
+  );
+  stage.addEventListener(
+    "touchend",
+    (event) => {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+      select(deltaX < 0 ? active + 1 : active - 1);
+    },
+    { passive: true },
+  );
 }

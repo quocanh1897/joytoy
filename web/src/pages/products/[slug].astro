@@ -56,72 +56,90 @@ const availabilityVi = product.availability === "InStock" ? "Còn hàng" : produ
               fetchpriority="high"
             />
             {images.length > 1 && (
-              <div class="gallery-arrows">
-                <button type="button" data-gallery-prev aria-label="Previous image">←</button>
-                <button type="button" data-gallery-next aria-label="Next image">→</button>
+              <div class="gallery-nav">
+                <button type="button" class="gallery-nav-hit gallery-nav-hit--prev" data-gallery-prev aria-label="Previous image">
+                  <span aria-hidden="true">←</span>
+                </button>
+                <button type="button" class="gallery-nav-hit gallery-nav-hit--next" data-gallery-next aria-label="Next image">
+                  <span aria-hidden="true">→</span>
+                </button>
               </div>
             )}
           </div>
           {images.length > 1 && (
             <div class="thumbnail-rail" aria-label="Choose image">
-              {images.map((image, index) => (
-                <button
-                  class:list={["gallery-thumb", { active: index === 0 }]}
-                  type="button"
-                  data-gallery-thumb
-                  data-src={image.src}
-                  data-width={image.width}
-                  data-height={image.height}
-                  aria-label={`Show image ${index + 1}`}
-                  aria-current={index === 0 ? "true" : "false"}
-                >
-                  <img src={image.src} alt="" width={image.width} height={image.height} loading="lazy" decoding="async" />
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                </button>
-              ))}
+              {images.map((image, index) => {
+                const preview = image.preview ?? image;
+                return (
+                  <button
+                    class:list={["gallery-thumb", { active: index === 0 }]}
+                    type="button"
+                    data-gallery-thumb
+                    data-src={image.src}
+                    data-width={image.width}
+                    data-height={image.height}
+                    aria-label={`Show image ${index + 1}`}
+                    aria-current={index === 0 ? "true" : "false"}
+                  >
+                    <img src={preview.src} alt="" width={preview.width} height={preview.height} loading="lazy" decoding="async" />
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </section>
 
-        <article class="record-panel">
-          <div class="record-topline">
-            <span data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</span>
-            <span>WH–JT / {product.upc || "UNLISTED"}</span>
-          </div>
-          <h1>{product.name}</h1>
-          <div class="record-status">
-            <span class:list={["availability", (product.availability ?? "unknown").toLowerCase()]} data-en={availabilityEn} data-vi={availabilityVi}>{availabilityEn}</span>
-            {product.stock && <span class="shop-record" data-en="Local inventory record" data-vi="Có trong kho địa phương">Local inventory record</span>}
-          </div>
+        <details class="record-panel" open>
+          <summary class="record-panel-summary">
+            <div class="record-summary-copy">
+              <div class="record-topline">
+                <span data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</span>
+                <span>WH–JT / {product.upc || "UNLISTED"}</span>
+              </div>
+              <h1>{product.name}</h1>
+              <div class="record-status">
+                <span class:list={["availability", (product.availability ?? "unknown").toLowerCase()]} data-en={availabilityEn} data-vi={availabilityVi}>{availabilityEn}</span>
+                {product.stock && <span class="shop-record" data-en="Local inventory record" data-vi="Có trong kho địa phương">Local inventory record</span>}
+              </div>
+            </div>
+            <div class="record-summary-meta">
+              <strong>{formatUsd(product.priceUsd)}</strong>
+              {product.stock?.priceVnd && <span>{formatVnd(product.stock.priceVnd)}</span>}
+              <span class="record-expand-hint" data-en="Show specifications" data-vi="Xem thông số">Show specifications</span>
+            </div>
+          </summary>
 
-          <div class="record-price">
-            <div><span data-en="Official price" data-vi="Giá chính thức">Official price</span><strong>{formatUsd(product.priceUsd)}</strong></div>
-            {product.stock?.priceVnd && <div><span data-en="Local price" data-vi="Giá tại shop">Local price</span><strong>{formatVnd(product.stock.priceVnd)}</strong></div>}
+          <div class="record-panel-body">
+            <div class="record-price">
+              <div><span data-en="Official price" data-vi="Giá chính thức">Official price</span><strong>{formatUsd(product.priceUsd)}</strong></div>
+              {product.stock?.priceVnd && <div><span data-en="Local price" data-vi="Giá tại shop">Local price</span><strong>{formatVnd(product.stock.priceVnd)}</strong></div>}
+            </div>
+
+            <dl class="spec-table">
+              <div><dt data-en="Formation" data-vi="Đội hình">Formation</dt><dd data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</dd></div>
+              <div><dt data-en="Scale" data-vi="Tỉ lệ">Scale</dt><dd>{product.scale || "—"}</dd></div>
+              <div><dt data-en="Height" data-vi="Chiều cao">Height</dt><dd>{product.size || "—"}</dd></div>
+              <div><dt data-en="Material" data-vi="Chất liệu">Material</dt><dd>{product.material || "ABS / PVC"}</dd></div>
+              <div><dt>UPC</dt><dd>{product.upc || "—"}</dd></div>
+              <div><dt data-en="Image plates" data-vi="Số ảnh">Image plates</dt><dd>{product.galleryCount}</dd></div>
+              {product.stock?.sku && <div><dt data-en="Local SKU" data-vi="SKU tại shop">Local SKU</dt><dd>{product.stock.sku}</dd></div>}
+              {product.stock?.qty != null && <div><dt data-en="Local quantity" data-vi="Số lượng tại shop">Local quantity</dt><dd>{product.stock.qty}</dd></div>}
+            </dl>
+
+            {product.boxContents.length > 0 && (
+              <section class="box-contents">
+                <h2 data-en="Field manifest" data-vi="Danh sách trong hộp">Field manifest</h2>
+                <ul>{product.boxContents.map((item) => <li>{item}</li>)}</ul>
+              </section>
+            )}
+
+            <div class="record-actions">
+              {product.url && <a class="primary-action" href={product.url} target="_blank" rel="noopener"><span data-en="View official record" data-vi="Xem trang chính thức">View official record</span> ↗</a>}
+              <a class="secondary-action" href="/" data-en="← Back to archive" data-vi="← Về kho lưu trữ">← Back to archive</a>
+            </div>
           </div>
-
-          <dl class="spec-table">
-            <div><dt data-en="Formation" data-vi="Đội hình">Formation</dt><dd data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</dd></div>
-            <div><dt data-en="Scale" data-vi="Tỉ lệ">Scale</dt><dd>{product.scale || "—"}</dd></div>
-            <div><dt data-en="Height" data-vi="Chiều cao">Height</dt><dd>{product.size || "—"}</dd></div>
-            <div><dt data-en="Material" data-vi="Chất liệu">Material</dt><dd>{product.material || "ABS / PVC"}</dd></div>
-            <div><dt>UPC</dt><dd>{product.upc || "—"}</dd></div>
-            <div><dt data-en="Image plates" data-vi="Số ảnh">Image plates</dt><dd>{product.galleryCount}</dd></div>
-            {product.stock?.sku && <div><dt data-en="Local SKU" data-vi="SKU tại shop">Local SKU</dt><dd>{product.stock.sku}</dd></div>}
-            {product.stock?.qty != null && <div><dt data-en="Local quantity" data-vi="Số lượng tại shop">Local quantity</dt><dd>{product.stock.qty}</dd></div>}
-          </dl>
-
-          {product.boxContents.length > 0 && (
-            <section class="box-contents">
-              <h2 data-en="Field manifest" data-vi="Danh sách trong hộp">Field manifest</h2>
-              <ul>{product.boxContents.map((item) => <li>{item}</li>)}</ul>
-            </section>
-          )}
-
-          <div class="record-actions">
-            {product.url && <a class="primary-action" href={product.url} target="_blank" rel="noopener"><span data-en="View official record" data-vi="Xem trang chính thức">View official record</span> ↗</a>}
-            <a class="secondary-action" href="/" data-en="← Back to archive" data-vi="← Về kho lưu trữ">← Back to archive</a>
-          </div>
-        </article>
+        </details>
       </div>
     </main>
   </div>

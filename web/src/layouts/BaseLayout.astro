@@ -32,5 +32,9 @@ const socialImage = new URL(image, Astro.site);
   <body class={bodyClass}>
     <a class="skip-link" href="#main-content">Skip to catalog</a>
     <slot />
+    <script>
+      import { initHomeEscape } from "../scripts/home-escape";
+      initHomeEscape();
+    </script>
   </body>
 </html>

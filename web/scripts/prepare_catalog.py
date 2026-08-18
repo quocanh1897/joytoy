@@ -24,10 +24,12 @@ PUBLIC_DATA_DIR = PUBLIC_DIR / "data"
 sys.path.insert(0, str(CATALOG_DIR))
 import build_catalog  # noqa: E402
 
-THUMB_MAX = 360
+THUMB_MAX = 480
 GALLERY_MAX = 960
-THUMB_QUALITY = 65
-GALLERY_QUALITY = 72
+PREVIEW_MAX = 240
+THUMB_QUALITY = 78
+GALLERY_QUALITY = 76
+PREVIEW_QUALITY = 82
 PLACEHOLDER = {
     "src": "/placeholder.svg",
     "width": 720,
@@ -96,8 +98,11 @@ def prepare(*, skip_images: bool) -> None:
             continue
         for index, source in enumerate(sources, start=1):
             output = MEDIA_DIR / "gallery" / slug / f"{index:03d}.webp"
+            preview_output = MEDIA_DIR / "previews" / slug / f"{index:03d}.webp"
             expected_outputs.add(output)
+            expected_outputs.add(preview_output)
             tasks.append((str(source), str(output), GALLERY_MAX, GALLERY_QUALITY))
+            tasks.append((str(source), str(preview_output), PREVIEW_MAX, PREVIEW_QUALITY))
         if sources:
             output = MEDIA_DIR / "thumbs" / f"{slug}.webp"
             expected_outputs.add(output)
@@ -125,20 +130,30 @@ def prepare(*, skip_images: bool) -> None:
         gallery: list[dict[str, Any]] = []
         for index, _source in enumerate(sources, start=1):
             output = MEDIA_DIR / "gallery" / slug / f"{index:03d}.webp"
+            preview_output = MEDIA_DIR / "previews" / slug / f"{index:03d}.webp"
             meta = image_meta.get(str(output))
+            preview_meta = image_meta.get(str(preview_output))
             if meta is None and output.exists():
                 with Image.open(output) as image:
                     meta = (image.width, image.height, output.stat().st_size)
+            if preview_meta is None and preview_output.exists():
+                with Image.open(preview_output) as image:
+                    preview_meta = (image.width, image.height, preview_output.stat().st_size)
             if meta is None:
                 missing_images += 1
                 continue
-            gallery.append(
-                {
-                    "src": f"/media/gallery/{slug}/{index:03d}.webp",
-                    "width": meta[0],
-                    "height": meta[1],
+            entry: dict[str, Any] = {
+                "src": f"/media/gallery/{slug}/{index:03d}.webp",
+                "width": meta[0],
+                "height": meta[1],
+            }
+            if preview_meta:
+                entry["preview"] = {
+                    "src": f"/media/previews/{slug}/{index:03d}.webp",
+                    "width": preview_meta[0],
+                    "height": preview_meta[1],
                 }
-            )
+            gallery.append(entry)
 
         thumb_output = MEDIA_DIR / "thumbs" / f"{slug}.webp"
         thumb_meta = image_meta.get(str(thumb_output))

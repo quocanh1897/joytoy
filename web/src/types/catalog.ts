@@ -4,6 +4,7 @@ export interface CatalogImage {
   src: string;
   width: number;
   height: number;
+  preview?: CatalogImage;
 }
 
 export interface CatalogStock {

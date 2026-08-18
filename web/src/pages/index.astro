@@ -23,22 +23,7 @@ const scrapedDate = catalog.generatedAt
     <SiteHeader />
 
     <main id="main-content">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-grid" aria-hidden="true"></div>
-        <div class="hero-copy">
-          <p class="kicker"><span>Archive 041</span> Official model index</p>
-          <h1 id="hero-title">
-            <span data-en="Every miniature tells" data-vi="Mỗi mô hình kể">Every miniature tells</span>
-            <em data-en="a war story." data-vi="một chuyện chiến tranh.">a war story.</em>
-          </h1>
-          <p class="hero-summary" data-en="A field-ready index of JoyToy's Warhammer range—sorted by legion, measured, priced and documented plate by plate." data-vi="Danh mục thực địa của dòng Warhammer từ JoyToy—phân loại theo quân đoàn, kích thước, giá và từng ảnh chi tiết.">
-            A field-ready index of JoyToy's Warhammer range—sorted by legion, measured, priced and documented plate by plate.
-          </p>
-          <a class="hero-cta" href="#catalog-start">
-            <span data-en="Open the archive" data-vi="Mở kho lưu trữ">Open the archive</span>
-            <span aria-hidden="true">↓</span>
-          </a>
-        </div>
+      <section class="hero" aria-label="Archive metrics">
         <dl class="archive-stats">
           <div><dt data-en="Models" data-vi="Mẫu">Models</dt><dd>{catalog.productCount}</dd></div>
           <div><dt data-en="Factions" data-vi="Phe">Factions</dt><dd>{catalog.categories.length}</dd></div>

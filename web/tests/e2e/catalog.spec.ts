@@ -5,7 +5,7 @@ test("searches the archive and opens a product record", async ({ page }) => {
   page.on("console", (message) => message.type() === "error" && consoleErrors.push(message.text()));
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: /Every miniature tells/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Factions/i })).toBeVisible();
   await expect(page.locator("[data-product-card]")).toHaveCount(36);
   await page.locator("[data-catalog-search]").fill("Morvenn Vahl");
   await expect(page.locator("[data-result-count]")).toHaveText("1 matching model");
