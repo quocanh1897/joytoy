@@ -26,6 +26,7 @@ const availabilityVi = product.availability === "InStock" ? "Còn hàng" : produ
   description={`${product.name}, ${product.categoryEn}. View specifications, pricing and ${product.galleryCount} detailed image plates.`}
   image={firstImage.src}
   bodyClass="product-page"
+  legionCategory={product.categoryId}
 >
   <div class="page-frame">
     <SiteHeader compact />

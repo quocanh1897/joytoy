@@ -21,9 +21,12 @@ html[data-catalog-category]:not([data-catalog-category=""]):not([data-catalog-re
 }
 
 ${selectedSelectors.join(",\n")} {
-  border-left-color: var(--brass);
-  background: rgb(185 154 80 / 6%);
+  border-left-color: var(--brass-bright);
+  background:
+    linear-gradient(90deg, var(--legion-highlight), transparent 72%),
+    color-mix(in srgb, var(--brass) 28%, var(--ink-soft));
   color: var(--paper);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brass) 36%, transparent);
 }
 
 ${selectedSelectors.map((selector) => `${selector} strong`).join(",\n")} {

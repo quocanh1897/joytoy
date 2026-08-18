@@ -1,20 +1,23 @@
 ---
 import "../styles/global.css";
+import { buildLegionThemeCss } from "../lib/legion-themes";
 
 interface Props {
   title: string;
   description: string;
   image?: string;
   bodyClass?: string;
+  legionCategory?: string;
 }
 
-const { title, description, image = "/placeholder.svg", bodyClass = "" } = Astro.props;
+const { title, description, image = "/placeholder.svg", bodyClass = "", legionCategory = "" } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const socialImage = new URL(image, Astro.site);
+const legionThemeCss = buildLegionThemeCss();
 ---
 
 <!doctype html>
-<html lang="en" data-language="en">
+<html lang="en" data-language="en" data-catalog-category={legionCategory}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,6 +31,7 @@ const socialImage = new URL(image, Astro.site);
     <meta property="og:image" content={socialImage} />
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
+    <style is:global set:html={legionThemeCss}></style>
     <slot name="head" />
   </head>
   <body class={bodyClass}>
