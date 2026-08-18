@@ -4,7 +4,7 @@
 
 **Prepared:** 2026-08-18
 
-**Target:** Astro + TypeScript deployed as static assets on Cloudflare Pages
+**Target:** Astro + TypeScript deployed as static assets on Cloudflare Pages at `https://joytoy.binscode.site`
 
 **Cost constraint:** Required solution must remain **USD $0**. Stop implementation before enabling any paid product or entering a paid commitment.
 
@@ -16,7 +16,8 @@ The required production architecture will use only:
 
 - A free Cloudflare account.
 - Cloudflare Pages static asset hosting.
-- The free `https://<project>.pages.dev` hostname.
+- The existing `binscode.site` domain, using the exact hostname `joytoy.binscode.site`.
+- The free `https://<project>.pages.dev` hostname as a deployment fallback.
 - Astro's static output mode, with no server adapter.
 - TypeScript running in the browser only where interaction is required.
 - Standard GitHub Actions runners while this repository remains public.
@@ -30,9 +31,9 @@ Cloudflare states that static asset requests are free and unlimited on both free
 |---|---:|---|---:|
 | Astro and TypeScript | Yes | Open source | $0 |
 | Cloudflare Pages static assets | Yes | Free | $0 |
-| `*.pages.dev` hostname and TLS | Yes | Included | $0 |
+| `*.pages.dev` fallback hostname and TLS | Yes | Included | $0 |
 | GitHub Actions | Yes | Standard runner, public repository | $0 |
-| Custom domain | No | Not included in this plan | $0 |
+| `joytoy.binscode.site` | Yes | Existing owner-provided domain | $0 incremental cost |
 | Cloudflare Images | No | Explicitly excluded | $0 |
 | Cloudflare R2 | No | Explicitly excluded | $0 |
 | Pages Functions / Workers | No | Explicitly excluded | $0 |
@@ -53,7 +54,7 @@ Stop implementation and ask the owner before proceeding if any of these becomes 
 4. Any generated file exceeds 24 MiB. The official hard limit is 25 MiB; 24 MiB is the safety threshold.
 5. A required feature cannot be implemented without Pages Functions, Workers, R2, Images, D1, KV, or another metered service.
 6. The repository becomes private and its GitHub Actions use would exceed the owner's included free allowance. Configure the GitHub Actions spending budget to stop usage rather than permit charges.
-7. A custom domain is considered mandatory but the owner does not already own one. The free `*.pages.dev` hostname must be accepted for this plan.
+7. Connecting the already-owned `joytoy.binscode.site` hostname requires purchasing a new domain, certificate, DNS product, or paid Cloudflare feature. The `*.pages.dev` hostname remains the no-cost fallback.
 8. Cloudflare or GitHub changes its free-tier terms before deployment such that this design would incur a charge.
 
 Do not “temporarily” activate a paid product to get past a blocker. Report the blocker and stop.
@@ -114,7 +115,10 @@ Astro static build
 GitHub Actions verification and Direct Upload
         |
         v
-Cloudflare Pages CDN (*.pages.dev)
+Cloudflare Pages CDN
+        |
+        +-- joytoy.binscode.site (production)
+        +-- *.pages.dev (fallback/preview)
 ```
 
 ### Rendering model
@@ -317,15 +321,16 @@ Also compare against the recorded current baseline. The desired practical result
 
 ### Phase 0 — Revalidate the free approach
 
-1. Confirm Cloudflare Pages Free still offers static hosting and a `pages.dev` URL.
+1. Confirm Cloudflare Pages Free still offers static hosting, a `pages.dev` URL, and custom subdomains at no additional charge.
 2. Confirm the limits listed in Section 1 against current official documentation.
 3. Confirm this GitHub repository is public before relying on unlimited free standard-runner Actions usage.
 4. Confirm no paid Cloudflare subscription is active or required.
-5. Confirm the owner accepts a `pages.dev` hostname.
-6. Calculate the exact set of referenced online gallery images.
-7. Estimate generated file count, maximum file size, and output size.
-8. Record the audit in the implementation PR or commit message.
-9. Apply every stop condition before writing deployment credentials.
+5. Confirm `binscode.site` is still owned and determine whether its DNS is managed by Cloudflare or another provider.
+6. Confirm the intended production hostname is exactly `joytoy.binscode.site`. Cloudflare Pages does not support attaching `*.binscode.site` itself as a wildcard Pages custom domain.
+7. Calculate the exact set of referenced online gallery images.
+8. Estimate generated file count, maximum file size, and output size.
+9. Record the audit in the implementation PR or commit message.
+10. Apply every stop condition before writing deployment credentials.
 
 Acceptance: all required components have a verified $0 path and projected output is under internal safety limits.
 
@@ -430,7 +435,7 @@ Use Direct Upload rather than Cloudflare Git builds. This gives the image pipeli
 6. Never expose the Cloudflare API token in logs or pull-request jobs.
 7. Do not upload `web/dist` as a long-lived GitHub artifact unless needed for debugging.
 
-Acceptance: a preview deployment succeeds at a `pages.dev` URL and reports the expected production commit.
+Acceptance: a preview deployment succeeds at a `pages.dev` URL and reports the expected production commit. The custom domain is not attached until this preview passes.
 
 ### Phase 8 — User acceptance and production cutover
 
@@ -440,9 +445,11 @@ Acceptance: a preview deployment succeeds at a `pages.dev` URL and reports the e
 4. Verify all 541 products and sample galleries across multiple categories.
 5. Verify Cloudflare Analytics/usage shows static asset requests only and no Function invocations.
 6. Deploy `main` to the production Pages project.
-7. Keep the GitHub Pages deployment available during a stabilization window.
-8. After approval, disable the old GitHub Pages deployment workflow or replace its homepage with a small redirect/link to the new `pages.dev` site.
-9. Do not delete the standalone catalog or scraper data.
+7. Attach and activate `joytoy.binscode.site` using the steps in Section 10.H.
+8. Verify the custom hostname, TLS certificate, canonical URLs, product routes, and static assets.
+9. Keep the GitHub Pages deployment available during a stabilization window.
+10. After approval, disable the old GitHub Pages deployment workflow or replace its homepage with a small redirect/link to `https://joytoy.binscode.site`.
+11. Do not delete the standalone catalog or scraper data.
 
 Acceptance: the Cloudflare production site passes UAT and the old site can be retired without losing the offline artifact.
 
@@ -463,7 +470,7 @@ These steps are intentionally separated because the repository owner must authen
 
 1. Open the Cloudflare dashboard and create/sign into an account.
 2. Stay on the Free plan.
-3. Do not add a domain, payment plan, R2 subscription, Images subscription, Workers Paid plan, or other product.
+3. Do not purchase a domain or add a payment plan, R2 subscription, Images subscription, Workers Paid plan, or other product. The existing `binscode.site` domain is sufficient.
 4. Confirm the dashboard provides access to **Workers & Pages**.
 5. If Cloudflare asks for a paid commitment for ordinary Pages static hosting, stop.
 
@@ -548,21 +555,107 @@ Pin actions to reviewed versions or immutable commit SHAs during implementation.
 
 1. Open **Workers & Pages → joytoy-catalog → Deployments**.
 2. Confirm the production deployment is associated with `main`.
-3. Open the `pages.dev` production URL.
+3. Open the `pages.dev` production URL before custom-domain activation.
 4. Confirm TLS works without configuration.
 5. Confirm no Pages Functions are deployed or invoked.
 6. Check browser network requests: HTML, CSS, JavaScript, JSON, and WebP files should be separate.
 7. Confirm the response is not the old 182 MB HTML document.
 8. Test a preview branch URL before each risky release.
 
-### H. Custom domain policy
+### H. Connect `joytoy.binscode.site`
 
-A custom domain is optional and excluded from the free requirement.
+The owner already has `*.binscode.site` available. Cloudflare Pages cannot attach a wildcard such as `*.binscode.site` directly; configure the exact production hostname `joytoy.binscode.site`. This has no incremental hosting charge. Existing domain-renewal costs are outside the website hosting architecture.
 
-- Use the included `pages.dev` URL at no charge.
-- If the owner already owns a domain, it may be connected later without changing the site architecture.
-- Purchasing or renewing a domain costs money and requires a separate decision.
-- Do not purchase a domain as part of this plan.
+#### H.1 Configure Astro for the production origin
+
+Set the canonical production origin in `web/astro.config.mjs`:
+
+```js
+import { defineConfig } from "astro/config";
+
+export default defineConfig({
+  site: "https://joytoy.binscode.site",
+  output: "static",
+});
+```
+
+Additional requirements:
+
+1. Do not configure the old GitHub Pages `/joytoy/` base path.
+2. Serve the new site from `/`.
+3. Generate canonical and social URLs using `Astro.site`.
+4. Use Astro-managed or root-relative asset paths.
+5. Verify `/products/<slug>/` routes and direct refreshes under the custom origin.
+
+#### H.2 If `binscode.site` DNS is managed by Cloudflare
+
+After the first successful production deployment:
+
+1. Open **Cloudflare Dashboard → Workers & Pages**.
+2. Select the `joytoy-catalog` Pages project.
+3. Open **Custom domains**.
+4. Select **Set up a custom domain**.
+5. Enter `joytoy.binscode.site` exactly, not `*.binscode.site`.
+6. Select **Continue → Activate domain**.
+7. Allow Cloudflare to create the DNS record automatically.
+8. Verify the resulting record is equivalent to:
+
+```text
+Type:    CNAME
+Name:    joytoy
+Target:  joytoy-catalog.pages.dev
+Proxy:   Proxied
+```
+
+9. Wait until the Pages custom-domain status becomes **Active**.
+10. Confirm `https://joytoy.binscode.site` presents a valid automatically managed TLS certificate.
+
+An existing wildcard DNS record for `*.binscode.site` does not need to be removed solely for this site. The explicit `joytoy` record should take precedence. Resolve any existing explicit `joytoy` A, AAAA, or CNAME conflict before activation.
+
+#### H.3 If DNS is managed by another provider
+
+1. First add `joytoy.binscode.site` in **Pages project → Custom domains**.
+2. Only after Pages recognizes the hostname, open the external DNS provider.
+3. Create:
+
+```text
+Type:    CNAME
+Name:    joytoy
+Target:  joytoy-catalog.pages.dev
+TTL:     Auto or provider default
+```
+
+4. Return to Cloudflare Pages and wait for the custom-domain status to become **Active**.
+5. Do not create only the DNS record without first associating the hostname with the Pages project; Cloudflare documents that this can result in a `522` response.
+6. If certificate activation fails, inspect restrictive CAA records and allow a certificate authority supported by Cloudflare Pages. Do not buy a certificate.
+
+#### H.4 Validate DNS, TLS, routing, and SEO
+
+Run these checks after activation:
+
+```bash
+dig joytoy.binscode.site CNAME
+curl -I https://joytoy.binscode.site/
+curl -I https://joytoy.binscode.site/products/<known-slug>/
+```
+
+Then verify in a browser:
+
+1. HTTPS is valid with no certificate warning.
+2. `/`, product routes, CSS, JavaScript, JSON, and WebP assets return successfully.
+3. HTML canonical URLs use `https://joytoy.binscode.site`.
+4. No asset URL contains the obsolete `/joytoy/` base path.
+5. Search and product navigation work after a direct page refresh.
+6. The `pages.dev` hostname either remains a fallback marked `noindex` or redirects to the custom hostname using a free Cloudflare redirect feature.
+7. The old GitHub Pages URL points users to the new custom hostname after the stabilization period.
+
+#### H.5 Cost policy
+
+- Attaching the already-owned subdomain to Cloudflare Pages must cost $0.
+- Cloudflare-managed TLS must be used; do not purchase a certificate.
+- Do not purchase another domain.
+- Do not enable a paid Cloudflare plan to attach the hostname.
+- If custom-domain activation requires payment, stop and continue using `joytoy-catalog.pages.dev` while reporting the blocker.
 
 ## 11. Automated free-tier verifier
 
@@ -599,7 +692,7 @@ The restructuring is complete only when:
 
 - The required architecture costs $0.
 - No paid or metered Cloudflare product is enabled.
-- The site is served from a `pages.dev` production URL.
+- The site is served from `https://joytoy.binscode.site`, with `pages.dev` retained only as a fallback or redirected/noindexed origin.
 - Useful catalog content appears without waiting for JavaScript or gallery downloads.
 - Initial transfer and Core Web Vitals meet the agreed budgets.
 - Search, categories, sorting, language, stock filtering, product details, and galleries pass desktop and mobile tests.
@@ -616,6 +709,7 @@ The restructuring is complete only when:
 - [Cloudflare Pages pricing for static assets and Functions](https://developers.cloudflare.com/pages/functions/pricing/)
 - [Cloudflare Pages Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)
 - [Direct Upload with GitHub Actions](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/)
+- [Cloudflare Pages custom domains](https://developers.cloudflare.com/pages/configuration/custom-domains/)
 - [Cloudflare's Astro Pages guide](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/)
 - [Astro Cloudflare integration: static sites do not need an adapter](https://docs.astro.build/en/guides/integrations-guide/cloudflare/)
 - [Astro islands architecture](https://docs.astro.build/en/concepts/islands/)
