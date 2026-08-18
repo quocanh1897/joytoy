@@ -28,6 +28,7 @@ const socialImage = new URL(image, Astro.site);
     <meta property="og:image" content={socialImage} />
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
+    <slot name="head" />
   </head>
   <body class={bodyClass}>
     <a class="skip-link" href="#main-content">Skip to catalog</a>

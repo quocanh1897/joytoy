@@ -1,5 +1,6 @@
 import { filterAndSort, formatUsd, formatVnd, type FilterState, type SortMode } from "../lib/catalog-filter";
 import type { CatalogIndex, CatalogProductSummary } from "../types/catalog";
+import { resolveCatalogState, writeCatalogState } from "./catalog-state";
 import { applyLanguage, bindLanguageToggle, type Language } from "./language";
 
 const PAGE_SIZE = 36;
@@ -107,15 +108,8 @@ export async function initCatalog(): Promise<void> {
   let language: Language = "en";
   let data: CatalogIndex;
   let visibleCount = PAGE_SIZE;
-  const params = new URLSearchParams(location.search);
-  const state: FilterState = {
-    query: params.get("q") ?? "",
-    category: params.get("category") ?? "",
-    shopOnly: params.get("shop") === "1",
-    sort: (["name", "name-desc", "price-asc", "price-desc"].includes(params.get("sort") ?? "")
-      ? params.get("sort")
-      : "name") as SortMode,
-  };
+  const state: FilterState = resolveCatalogState();
+  document.documentElement.dataset.catalogCategory = state.category;
 
   search.value = state.query;
   sort.value = state.sort;
@@ -144,9 +138,11 @@ export async function initCatalog(): Promise<void> {
       : `Load next ${Math.min(PAGE_SIZE, results.length - visibleCount)}`;
     categoryNav.querySelectorAll<HTMLButtonElement>("[data-category]").forEach((button) => {
       const active = (button.dataset.category ?? "") === state.category;
-      button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     });
+    document.documentElement.dataset.catalogCategory = state.category;
+    document.documentElement.dataset.catalogReady = "";
+    writeCatalogState(state);
     updateUrl();
   };
 

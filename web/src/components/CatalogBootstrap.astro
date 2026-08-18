@@ -1,0 +1,54 @@
+---
+interface Category {
+  id: string;
+}
+
+interface Props {
+  categories: Category[];
+}
+
+const { categories } = Astro.props;
+
+const selectedSelectors = [
+  'html[data-catalog-category=""] .category-link[data-category=""]',
+  ...categories.map((category) => `html[data-catalog-category="${category.id}"] .category-link[data-category="${category.id}"]`),
+];
+const bootstrapCss = `
+html[data-catalog-category]:not([data-catalog-category=""]):not([data-catalog-ready]) [data-catalog-grid],
+html[data-catalog-category]:not([data-catalog-category=""]):not([data-catalog-ready]) [data-result-count],
+html[data-catalog-category]:not([data-catalog-category=""]):not([data-catalog-ready]) [data-load-more] {
+  visibility: hidden;
+}
+
+${selectedSelectors.join(",\n")} {
+  border-left-color: var(--brass);
+  background: rgb(185 154 80 / 6%);
+  color: var(--paper);
+}
+
+${selectedSelectors.map((selector) => `${selector} strong`).join(",\n")} {
+  color: var(--brass-bright);
+}
+`;
+---
+
+<script is:inline>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var hasUrlState = ["q", "category", "shop", "sort"].some(function (key) {
+      return params.has(key);
+    });
+    var category = "";
+    if (hasUrlState) {
+      category = params.get("category") || "";
+    } else {
+      try {
+        var saved = JSON.parse(sessionStorage.getItem("jt-catalog-state") || "{}");
+        category = typeof saved.category === "string" ? saved.category : "";
+      } catch (error) {}
+    }
+    document.documentElement.dataset.catalogCategory = category;
+  })();
+</script>
+
+<style is:global set:html={bootstrapCss}></style>

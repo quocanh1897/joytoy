@@ -1,8 +1,8 @@
-const HOME_PATH = "/";
+import { catalogHomeUrl } from "./catalog-state";
 
 function isHomePath(): boolean {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
-  return path === HOME_PATH;
+  return path === "/";
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
@@ -22,9 +22,13 @@ function isTypingTarget(): boolean {
 export function initHomeEscape(): void {
   if (isHomePath()) return;
 
+  const goHome = () => {
+    window.location.assign(catalogHomeUrl());
+  };
+
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || event.defaultPrevented || isTypingTarget()) return;
-    window.location.assign(HOME_PATH);
+    goHome();
   });
 
   document.addEventListener(
@@ -34,7 +38,7 @@ export function initHomeEscape(): void {
       if (!(target instanceof Element)) return;
       const main = document.getElementById("main-content");
       if (!main || main.contains(target) || isInteractiveTarget(target)) return;
-      window.location.assign(HOME_PATH);
+      goHome();
     },
     true,
   );

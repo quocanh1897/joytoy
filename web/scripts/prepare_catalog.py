@@ -24,10 +24,10 @@ PUBLIC_DATA_DIR = PUBLIC_DIR / "data"
 sys.path.insert(0, str(CATALOG_DIR))
 import build_catalog  # noqa: E402
 
-THUMB_MAX = 480
+THUMB_MAX = 720
 GALLERY_MAX = 960
 PREVIEW_MAX = 240
-THUMB_QUALITY = 78
+THUMB_QUALITY = 82
 GALLERY_QUALITY = 76
 PREVIEW_QUALITY = 82
 PLACEHOLDER = {
@@ -75,7 +75,7 @@ def normalize_stock(stock: dict[str, Any] | None) -> dict[str, Any] | None:
     }
 
 
-def prepare(*, skip_images: bool) -> None:
+def prepare(*, skip_images: bool, thumbs_only: bool = False) -> None:
     raw = build_catalog.build_catalog_data()
     GENERATED_DIR.mkdir(parents=True, exist_ok=True)
     PUBLIC_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -96,13 +96,14 @@ def prepare(*, skip_images: bool) -> None:
         product_sources[slug] = sources
         if skip_images:
             continue
-        for index, source in enumerate(sources, start=1):
-            output = MEDIA_DIR / "gallery" / slug / f"{index:03d}.webp"
-            preview_output = MEDIA_DIR / "previews" / slug / f"{index:03d}.webp"
-            expected_outputs.add(output)
-            expected_outputs.add(preview_output)
-            tasks.append((str(source), str(output), GALLERY_MAX, GALLERY_QUALITY))
-            tasks.append((str(source), str(preview_output), PREVIEW_MAX, PREVIEW_QUALITY))
+        if not thumbs_only:
+            for index, source in enumerate(sources, start=1):
+                output = MEDIA_DIR / "gallery" / slug / f"{index:03d}.webp"
+                preview_output = MEDIA_DIR / "previews" / slug / f"{index:03d}.webp"
+                expected_outputs.add(output)
+                expected_outputs.add(preview_output)
+                tasks.append((str(source), str(output), GALLERY_MAX, GALLERY_QUALITY))
+                tasks.append((str(source), str(preview_output), PREVIEW_MAX, PREVIEW_QUALITY))
         if sources:
             output = MEDIA_DIR / "thumbs" / f"{slug}.webp"
             expected_outputs.add(output)
@@ -110,6 +111,9 @@ def prepare(*, skip_images: bool) -> None:
 
     image_meta: dict[str, tuple[int, int, int]] = {}
     if not skip_images:
+        if thumbs_only:
+            for stale_thumb in (MEDIA_DIR / "thumbs").glob("*.webp"):
+                stale_thumb.unlink(missing_ok=True)
         workers = min(8, max(1, os.cpu_count() or 1))
         print(f"Preparing {len(tasks)} WebP assets with {workers} workers…", flush=True)
         with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
@@ -120,6 +124,8 @@ def prepare(*, skip_images: bool) -> None:
                 if index % 500 == 0:
                     print(f"  prepared {index}/{len(tasks)}", flush=True)
         for stale in (path for path in MEDIA_DIR.rglob("*") if path.is_file() and path not in expected_outputs):
+            if thumbs_only and "thumbs" not in stale.parts:
+                continue
             stale.unlink()
 
     products: list[dict[str, Any]] = []
@@ -245,8 +251,13 @@ def main() -> None:
         action="store_true",
         help="Regenerate JSON using existing media outputs without converting images",
     )
+    parser.add_argument(
+        "--thumbs-only",
+        action="store_true",
+        help="Regenerate card thumbnails and catalog JSON only",
+    )
     args = parser.parse_args()
-    prepare(skip_images=args.skip_images)
+    prepare(skip_images=args.skip_images, thumbs_only=args.thumbs_only)
 
 
 if __name__ == "__main__":

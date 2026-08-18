@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "preview": "astro preview",
     "prepare:data": "python3 scripts/prepare_catalog.py --skip-images",
+    "prepare:thumbs": "python3 scripts/prepare_catalog.py --thumbs-only",
     "prepare:images": "python3 scripts/prepare_catalog.py",
     "check": "astro check && npm run test:unit",
     "build": "npm run prepare:images && astro build && npm run verify:limits",

@@ -288,7 +288,7 @@ Initial planned derivative set:
 
 | Use | Count estimate | Output | Target |
 |---|---:|---|---|
-| Card thumbnail | Up to 541 | WebP, max 480×480 | Prefer ≤90 KB each |
+| Card thumbnail | Up to 541 | WebP, max 720×720 | Prefer ≤120 KB each |
 | Gallery/detail | Approximately 6,242 | WebP, max 960 px longest edge | Prefer ≤200 KB each |
 | Gallery preview rail | Approximately 6,242 | WebP, max 240×240 | Prefer ≤24 KB each |
 | Product HTML pages | Up to 541 | HTML | Prefer ≤50 KB each |

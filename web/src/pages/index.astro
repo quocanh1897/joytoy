@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import CatalogBootstrap from "../components/CatalogBootstrap.astro";
 import ProductCard from "../components/ProductCard.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import catalogJson from "../generated/catalog.json";
@@ -19,6 +20,8 @@ const scrapedDate = catalog.generatedAt
   description="A fast, bilingual field archive of 541 official JoyToy Warhammer action figures, with local stock and detailed image plates."
   bodyClass="catalog-page"
 >
+  <CatalogBootstrap slot="head" categories={catalog.categories} />
+
   <div class="page-frame">
     <SiteHeader />
 
@@ -46,7 +49,7 @@ const scrapedDate = catalog.generatedAt
             </div>
           </div>
           <nav class="category-nav" data-category-nav aria-label="Product categories">
-            <button class="category-link active" type="button" data-category="" aria-pressed="true">
+            <button class="category-link" type="button" data-category="" aria-pressed="false">
               <span data-en="All formations" data-vi="Tất cả đội hình">All formations</span>
               <strong>{catalog.productCount}</strong>
             </button>
