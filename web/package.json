@@ -1,0 +1,29 @@
+{
+  "name": "joytoy-catalog-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "prepare:data": "python3 scripts/prepare_catalog.py --skip-images",
+    "prepare:images": "python3 scripts/prepare_catalog.py",
+    "check": "astro check && npm run test:unit",
+    "build": "npm run prepare:images && astro build && npm run verify:limits",
+    "build:fast": "npm run prepare:data && astro build && npm run verify:limits",
+    "verify:limits": "node scripts/verify-free-limits.mjs",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@playwright/test": "1.62.1",
+    "@types/node": "26.2.0",
+    "astro": "7.2.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}

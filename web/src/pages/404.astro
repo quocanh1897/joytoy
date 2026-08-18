@@ -1,0 +1,16 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+---
+
+<BaseLayout title="Record not found — JoyToy Field Archive" description="The requested catalog record was not found." bodyClass="not-found-page">
+  <div class="page-frame">
+    <SiteHeader compact />
+    <main id="main-content" class="not-found">
+      <p class="kicker">Error / 404</p>
+      <h1>Record<br /><em>not found.</em></h1>
+      <p>The requested field record is missing, classified, or has moved to another formation.</p>
+      <a class="hero-cta" href="/">Return to the archive <span aria-hidden="true">→</span></a>
+    </main>
+  </div>
+</BaseLayout>

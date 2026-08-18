@@ -1,0 +1,21 @@
+---
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<header class:list={["site-header", { compact }]}>
+  <a class="brand" href="/" aria-label="JoyToy Warhammer catalog home">
+    <span class="brand-mark" aria-hidden="true">JT</span>
+    <span class="brand-copy">
+      <span class="eyebrow">Field Archive / 40K</span>
+      <span class="brand-name">JoyToy Warhammer</span>
+    </span>
+  </a>
+  <div class="header-actions">
+    <span class="edition">Catalog 541</span>
+    <button class="language-toggle" type="button" data-language-toggle aria-label="Switch language">VI</button>
+  </div>
+</header>

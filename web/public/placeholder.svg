@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-labelledby="title description">
+  <title id="title">Model image unavailable</title>
+  <desc id="description">A decorative placeholder for a product without an image.</desc>
+  <rect width="720" height="720" fill="#171713"/>
+  <path d="M100 560 360 110l260 450H100Z" fill="none" stroke="#aa8d48" stroke-width="8" opacity=".55"/>
+  <circle cx="360" cy="360" r="92" fill="none" stroke="#a84636" stroke-width="12" opacity=".7"/>
+  <path d="M310 360h100M360 310v100" stroke="#ded4ba" stroke-width="10"/>
+</svg>

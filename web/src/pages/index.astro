@@ -1,0 +1,144 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProductCard from "../components/ProductCard.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import catalogJson from "../generated/catalog.json";
+import type { CatalogData } from "../types/catalog";
+
+const catalog = catalogJson as CatalogData;
+const initialProducts = catalog.products.slice(0, 36);
+const inShop = catalog.products.filter((product) => product.stock).length;
+const galleryImages = catalog.products.reduce((total, product) => total + product.galleryCount, 0);
+const scrapedDate = catalog.generatedAt
+  ? new Intl.DateTimeFormat("en", { year: "numeric", month: "short", day: "2-digit" }).format(new Date(catalog.generatedAt))
+  : "Archive edition";
+---
+
+<BaseLayout
+  title="JoyToy Warhammer Field Archive"
+  description="A fast, bilingual field archive of 541 official JoyToy Warhammer action figures, with local stock and detailed image plates."
+  bodyClass="catalog-page"
+>
+  <div class="page-frame">
+    <SiteHeader />
+
+    <main id="main-content">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <p class="kicker"><span>Archive 041</span> Official model index</p>
+          <h1 id="hero-title">
+            <span data-en="Every miniature tells" data-vi="Mỗi mô hình kể">Every miniature tells</span>
+            <em data-en="a war story." data-vi="một chuyện chiến tranh.">a war story.</em>
+          </h1>
+          <p class="hero-summary" data-en="A field-ready index of JoyToy's Warhammer range—sorted by legion, measured, priced and documented plate by plate." data-vi="Danh mục thực địa của dòng Warhammer từ JoyToy—phân loại theo quân đoàn, kích thước, giá và từng ảnh chi tiết.">
+            A field-ready index of JoyToy's Warhammer range—sorted by legion, measured, priced and documented plate by plate.
+          </p>
+          <a class="hero-cta" href="#catalog-start">
+            <span data-en="Open the archive" data-vi="Mở kho lưu trữ">Open the archive</span>
+            <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+        <dl class="archive-stats">
+          <div><dt data-en="Models" data-vi="Mẫu">Models</dt><dd>{catalog.productCount}</dd></div>
+          <div><dt data-en="Factions" data-vi="Phe">Factions</dt><dd>{catalog.categories.length}</dd></div>
+          <div><dt data-en="Image plates" data-vi="Ảnh">Image plates</dt><dd>{galleryImages.toLocaleString("en")}</dd></div>
+          <div><dt data-en="Local records" data-vi="Hàng tại shop">Local records</dt><dd>{inShop}</dd></div>
+        </dl>
+        <div class="edition-note">
+          <span>{scrapedDate}</span>
+          <span>WH–JT / 001–541</span>
+        </div>
+      </section>
+
+      <section class="catalog-shell" id="catalog-start" aria-labelledby="catalog-title">
+        <aside class="catalog-sidebar">
+          <div class="sidebar-heading">
+            <span class="section-number">01</span>
+            <div>
+              <p data-en="Classification" data-vi="Phân loại">Classification</p>
+              <h2 id="catalog-title" data-en="Factions" data-vi="Danh mục">Factions</h2>
+            </div>
+          </div>
+          <nav class="category-nav" data-category-nav aria-label="Product categories">
+            <button class="category-link active" type="button" data-category="" aria-pressed="true">
+              <span data-en="All formations" data-vi="Tất cả đội hình">All formations</span>
+              <strong>{catalog.productCount}</strong>
+            </button>
+            {catalog.categories.map((category) => (
+              <button class="category-link" type="button" data-category={category.id} aria-pressed="false">
+                <span data-en={category.labelEn} data-vi={category.labelVi}>{category.labelEn}</span>
+                <strong>{category.count}</strong>
+              </button>
+            ))}
+          </nav>
+          <div class="sidebar-note">
+            <span class="crosshair" aria-hidden="true"></span>
+            <p data-en="Select a formation to isolate its records. Every filter is preserved in the URL." data-vi="Chọn một đội hình để lọc hồ sơ. Mọi bộ lọc được lưu trong URL.">
+              Select a formation to isolate its records. Every filter is preserved in the URL.
+            </p>
+          </div>
+        </aside>
+
+        <div class="catalog-content">
+          <div class="control-panel">
+            <label class="search-field">
+              <span class="sr-only" data-en="Search catalog" data-vi="Tìm kiếm danh mục">Search catalog</span>
+              <span class="search-icon" aria-hidden="true"></span>
+              <input
+                type="search"
+                data-catalog-search
+                data-placeholder-en="Search model, UPC or SKU"
+                data-placeholder-vi="Tìm mẫu, UPC hoặc SKU"
+                placeholder="Search model, UPC or SKU"
+                autocomplete="off"
+              />
+            </label>
+            <label class="select-field">
+              <span data-en="Order" data-vi="Sắp xếp">Order</span>
+              <select data-catalog-sort>
+                <option value="name" data-en="Name A–Z" data-vi="Tên A–Z">Name A–Z</option>
+                <option value="name-desc" data-en="Name Z–A" data-vi="Tên Z–A">Name Z–A</option>
+                <option value="price-asc" data-en="Price low–high" data-vi="Giá thấp–cao">Price low–high</option>
+                <option value="price-desc" data-en="Price high–low" data-vi="Giá cao–thấp">Price high–low</option>
+              </select>
+            </label>
+            <label class="stock-toggle">
+              <input type="checkbox" data-shop-only />
+              <span class="toggle-track" aria-hidden="true"><span></span></span>
+              <span data-en="Local stock only" data-vi="Chỉ hàng tại shop">Local stock only</span>
+            </label>
+          </div>
+
+          <div class="result-bar">
+            <p data-result-count>{catalog.productCount} matching models</p>
+            <span data-en="Live index / static archive" data-vi="Chỉ mục trực tiếp / kho tĩnh">Live index / static archive</span>
+          </div>
+          <p class="catalog-error" data-catalog-error hidden></p>
+
+          <div class="product-grid" data-catalog-grid aria-live="polite">
+            {initialProducts.map((product, index) => <ProductCard product={product} eager={index < 4} />)}
+          </div>
+
+          <button class="load-more" type="button" data-load-more>
+            <span data-en="Load next 36" data-vi="Xem thêm 36">Load next 36</span>
+          </button>
+          <noscript>
+            <p class="noscript-note">JavaScript is disabled. The first 36 records remain available; enable JavaScript for search and filtering.</p>
+          </noscript>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>JOYTOY FIELD ARCHIVE</p>
+      <p data-en="Independent catalog · Source data from joytoy.com" data-vi="Danh mục độc lập · Dữ liệu từ joytoy.com">Independent catalog · Source data from joytoy.com</p>
+      <a href="#main-content" data-en="Return to top ↑" data-vi="Lên đầu trang ↑">Return to top ↑</a>
+    </footer>
+  </div>
+
+  <script>
+    import { initCatalog } from "../scripts/catalog";
+    initCatalog();
+  </script>
+</BaseLayout>

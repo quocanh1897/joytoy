@@ -6,3 +6,11 @@ __pycache__/
 !.claude/CLAUDE.md
 .playwright-mcp/
 *.zip
+web/node_modules/
+web/dist/
+web/.astro/
+web/public/media/
+web/public/data/catalog-index.json
+web/src/generated/catalog.json
+web/test-results/
+web/playwright-report/

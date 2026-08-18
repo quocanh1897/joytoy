@@ -125,6 +125,19 @@ python build_catalog.py --linked  # catalog-linked.html (faster, smaller)
 
 Open the generated HTML file in a browser. The standalone catalog embeds compressed WebP images so it can be shared as a single file; use `--image-scope thumb` for a smaller build.
 
+## Fast web catalog
+
+The `web/` directory contains the online Astro + TypeScript catalog. It builds the same product and stock data into static HTML, compact JSON, and independently cached WebP images. Unlike the portable offline catalog, the web build never embeds product images in HTML.
+
+```bash
+cd web
+npm install
+npm run build
+npm run preview
+```
+
+The production origin is `https://joytoy.binscode.site`. Deployment uses Cloudflare Pages static assets only and is designed to remain within the free plan. The build fails if it approaches the free Pages file-count or per-file limits. See [the restructuring plan](.planning/RESTRUCTURE_CATALOG_SITE.md) for deployment, DNS, cost, and rollback details.
+
 ## Product data model
 
 Each scraped product includes:

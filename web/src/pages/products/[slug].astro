@@ -1,0 +1,133 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import catalogJson from "../../generated/catalog.json";
+import type { CatalogData, CatalogProduct } from "../../types/catalog";
+import { formatUsd, formatVnd } from "../../lib/catalog-filter";
+
+export function getStaticPaths() {
+  const catalog = catalogJson as CatalogData;
+  return catalog.products.map((product) => ({ params: { slug: product.slug }, props: { product } }));
+}
+
+interface Props {
+  product: CatalogProduct;
+}
+
+const { product } = Astro.props;
+const images = product.gallery.length ? product.gallery : [product.thumbnail];
+const firstImage = images[0]!;
+const availabilityEn = product.availability === "InStock" ? "In stock" : product.availability === "PreOrder" ? "Pre-order" : "Archive record";
+const availabilityVi = product.availability === "InStock" ? "Còn hàng" : product.availability === "PreOrder" ? "Đặt trước" : "Hồ sơ lưu trữ";
+---
+
+<BaseLayout
+  title={`${product.name} — JoyToy Field Archive`}
+  description={`${product.name}, ${product.categoryEn}. View specifications, pricing and ${product.galleryCount} detailed image plates.`}
+  image={firstImage.src}
+  bodyClass="product-page"
+>
+  <div class="page-frame">
+    <SiteHeader compact />
+    <main id="main-content" class="product-detail">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/" data-en="Archive" data-vi="Kho lưu trữ">Archive</a>
+        <span aria-hidden="true">/</span>
+        <span data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</span>
+        <span aria-hidden="true">/</span>
+        <span>{product.stock?.sku || product.upc || "Record"}</span>
+      </nav>
+
+      <div class="detail-grid">
+        <section class="gallery-panel" aria-label="Product gallery">
+          <div class="gallery-stage">
+            <div class="gallery-index">
+              <span data-en="Image plate" data-vi="Ảnh chi tiết">Image plate</span>
+              <strong data-gallery-counter>1 / {images.length}</strong>
+            </div>
+            <img
+              data-gallery-main
+              src={firstImage.src}
+              alt={product.name}
+              width={firstImage.width}
+              height={firstImage.height}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+            {images.length > 1 && (
+              <div class="gallery-arrows">
+                <button type="button" data-gallery-prev aria-label="Previous image">←</button>
+                <button type="button" data-gallery-next aria-label="Next image">→</button>
+              </div>
+            )}
+          </div>
+          {images.length > 1 && (
+            <div class="thumbnail-rail" aria-label="Choose image">
+              {images.map((image, index) => (
+                <button
+                  class:list={["gallery-thumb", { active: index === 0 }]}
+                  type="button"
+                  data-gallery-thumb
+                  data-src={image.src}
+                  data-width={image.width}
+                  data-height={image.height}
+                  aria-label={`Show image ${index + 1}`}
+                  aria-current={index === 0 ? "true" : "false"}
+                >
+                  <img src={image.src} alt="" width={image.width} height={image.height} loading="lazy" decoding="async" />
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <article class="record-panel">
+          <div class="record-topline">
+            <span data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</span>
+            <span>WH–JT / {product.upc || "UNLISTED"}</span>
+          </div>
+          <h1>{product.name}</h1>
+          <div class="record-status">
+            <span class:list={["availability", (product.availability ?? "unknown").toLowerCase()]} data-en={availabilityEn} data-vi={availabilityVi}>{availabilityEn}</span>
+            {product.stock && <span class="shop-record" data-en="Local inventory record" data-vi="Có trong kho địa phương">Local inventory record</span>}
+          </div>
+
+          <div class="record-price">
+            <div><span data-en="Official price" data-vi="Giá chính thức">Official price</span><strong>{formatUsd(product.priceUsd)}</strong></div>
+            {product.stock?.priceVnd && <div><span data-en="Local price" data-vi="Giá tại shop">Local price</span><strong>{formatVnd(product.stock.priceVnd)}</strong></div>}
+          </div>
+
+          <dl class="spec-table">
+            <div><dt data-en="Formation" data-vi="Đội hình">Formation</dt><dd data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</dd></div>
+            <div><dt data-en="Scale" data-vi="Tỉ lệ">Scale</dt><dd>{product.scale || "—"}</dd></div>
+            <div><dt data-en="Height" data-vi="Chiều cao">Height</dt><dd>{product.size || "—"}</dd></div>
+            <div><dt data-en="Material" data-vi="Chất liệu">Material</dt><dd>{product.material || "ABS / PVC"}</dd></div>
+            <div><dt>UPC</dt><dd>{product.upc || "—"}</dd></div>
+            <div><dt data-en="Image plates" data-vi="Số ảnh">Image plates</dt><dd>{product.galleryCount}</dd></div>
+            {product.stock?.sku && <div><dt data-en="Local SKU" data-vi="SKU tại shop">Local SKU</dt><dd>{product.stock.sku}</dd></div>}
+            {product.stock?.qty != null && <div><dt data-en="Local quantity" data-vi="Số lượng tại shop">Local quantity</dt><dd>{product.stock.qty}</dd></div>}
+          </dl>
+
+          {product.boxContents.length > 0 && (
+            <section class="box-contents">
+              <h2 data-en="Field manifest" data-vi="Danh sách trong hộp">Field manifest</h2>
+              <ul>{product.boxContents.map((item) => <li>{item}</li>)}</ul>
+            </section>
+          )}
+
+          <div class="record-actions">
+            {product.url && <a class="primary-action" href={product.url} target="_blank" rel="noopener"><span data-en="View official record" data-vi="Xem trang chính thức">View official record</span> ↗</a>}
+            <a class="secondary-action" href="/" data-en="← Back to archive" data-vi="← Về kho lưu trữ">← Back to archive</a>
+          </div>
+        </article>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    import { initProductGallery } from "../../scripts/product-gallery";
+    initProductGallery();
+  </script>
+</BaseLayout>

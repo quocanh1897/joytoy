@@ -1,0 +1,48 @@
+---
+import type { CatalogProductSummary } from "../types/catalog";
+import { formatUsd, formatVnd } from "../lib/catalog-filter";
+
+interface Props {
+  product: CatalogProductSummary;
+  eager?: boolean;
+}
+
+const { product, eager = false } = Astro.props;
+const availability = product.availability ?? "Unknown";
+---
+
+<article class="product-card" data-product-card data-slug={product.slug}>
+  <a class="card-image" href={`/products/${product.slug}/`} aria-label={`View ${product.name}`}>
+    <img
+      src={product.thumbnail.src}
+      alt=""
+      width={product.thumbnail.width}
+      height={product.thumbnail.height}
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      fetchpriority={eager ? "high" : "auto"}
+    />
+    <span class:list={["availability", availability.toLowerCase()]} data-availability={availability}>
+      <span data-en={availability === "InStock" ? "In stock" : availability === "PreOrder" ? "Pre-order" : availability === "SoldOut" || availability === "OutOfStock" ? "Sold out" : "Archive"} data-vi={availability === "InStock" ? "Còn hàng" : availability === "PreOrder" ? "Đặt trước" : availability === "SoldOut" || availability === "OutOfStock" ? "Hết hàng" : "Lưu trữ"}>
+        {availability === "InStock" ? "In stock" : availability === "PreOrder" ? "Pre-order" : availability === "SoldOut" || availability === "OutOfStock" ? "Sold out" : "Archive"}
+      </span>
+    </span>
+    {product.stock && <span class="shop-flag" data-en="Local stock" data-vi="Hàng tại shop">Local stock</span>}
+    <span class="gallery-count">{String(product.galleryCount).padStart(2, "0")} <span data-en="plates" data-vi="ảnh">plates</span></span>
+  </a>
+  <div class="card-copy">
+    <div class="card-taxonomy">
+      <span data-en={product.categoryEn} data-vi={product.categoryVi}>{product.categoryEn}</span>
+      <span>{product.scale ?? "1:18"}</span>
+    </div>
+    <h2><a href={`/products/${product.slug}/`}>{product.name}</a></h2>
+    <div class="card-meta">
+      <span>{product.stock?.sku || product.upc || "NO UPC"}</span>
+      {product.size && <span>{product.size}</span>}
+    </div>
+    <div class="card-price">
+      <strong>{formatUsd(product.priceUsd)}</strong>
+      {product.stock?.priceVnd && <span>{formatVnd(product.stock.priceVnd)}</span>}
+    </div>
+  </div>
+</article>

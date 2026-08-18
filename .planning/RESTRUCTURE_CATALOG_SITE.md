@@ -1,12 +1,60 @@
 # Restructure the JoyToy Catalog Site
 
-**Status:** Implementation plan
+**Status:** Implemented locally; Cloudflare owner setup and production cutover remain
 
 **Prepared:** 2026-08-18
 
 **Target:** Astro + TypeScript deployed as static assets on Cloudflare Pages at `https://joytoy.binscode.site`
 
 **Cost constraint:** Required solution must remain **USD $0**. Stop implementation before enabling any paid product or entering a paid commitment.
+
+## Implementation checkpoint — 2026-08-18
+
+The repository implementation is complete and verified locally. No paid service, payment method, metered runtime, or Cloudflare resource was enabled.
+
+Implemented:
+
+- Static Astro 7 + strict TypeScript application in `web/`, with no Cloudflare adapter and no server runtime.
+- 541 static product routes plus the catalog and 404 routes.
+- Compact catalog JSON, URL-synchronized search/filter/sort controls, English/Vietnamese copy, local-stock filtering, incremental rendering, and product galleries.
+- Deterministic build-time WebP conversion from the existing local source images.
+- Unit, data-contract, desktop, and mobile browser tests.
+- Free-tier output verifier and a conditional Cloudflare Pages Direct Upload workflow.
+- The existing GitHub Pages workflow and standalone offline catalog remain intact for rollback.
+
+Measured production-build results:
+
+| Check | Result |
+|---|---:|
+| Products / categories | 541 / 36 |
+| Static pages | 543 |
+| Generated WebP assets | 6,774 |
+| Total deployment files | 7,324 of the 18,999 internal maximum |
+| Total deployment size | 240.7 MiB |
+| Largest file | 301.7 KiB |
+| Homepage HTML, gzip | 5.8 KiB |
+| Catalog index, gzip | 28.3 KiB |
+| All JavaScript, gzip | 3.0 KiB |
+| Missing generated images | 0 |
+| Astro diagnostics | 0 errors, warnings, or hints |
+| Unit/data tests | 5 passed |
+| Browser tests | 7 passed, 1 intentional project skip |
+| Throttled local desktop LCP / CLS | approximately 600 ms / 0 |
+| Throttled local mobile LCP / CLS | approximately 560 ms / 0 |
+
+The lab render timings use a local server with a simulated 4G connection, so they are directional rather than a promise of production latency. They are well below the 2.5-second release budget and must be remeasured on the deployed `pages.dev` preview.
+
+Current free-tier terms were revalidated against official documentation on 2026-08-18: Pages Free permits 20,000 files, a 25 MiB maximum file, 100 custom domains per project, and static asset requests are free and unlimited. The repository is public, so its standard `ubuntu-latest` GitHub Actions runner is free. The build stays below the deliberately stricter internal thresholds.
+
+Owner checkpoint before this plan can be marked complete:
+
+1. Create the free Direct Upload project `joytoy-catalog` using Section 10.B.
+2. Add only the two repository secrets in Sections 10.C–E.
+3. Push the implementation and verify the `pages.dev` deployment.
+4. Attach `joytoy.binscode.site` using Section 10.H and run the production checks.
+5. Keep the old GitHub Pages deployment during acceptance; disable it only after approval.
+
+These steps require the owner's authenticated Cloudflare and GitHub access and are intentionally not automated from a local development session.
 
 ## 1. Decision and cost answer
 
