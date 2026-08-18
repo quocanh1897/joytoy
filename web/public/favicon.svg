@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="JoyToy Field Archive">
+  <defs>
+    <linearGradient id="jt-bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#171713"/>
+      <stop offset="100%" stop-color="#0c0d0a"/>
+    </linearGradient>
+    <linearGradient id="jt-brass" x1="8" y1="6" x2="24" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e0c477"/>
+      <stop offset="100%" stop-color="#b99a50"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="32" height="32" rx="5" fill="url(#jt-bg)"/>
+
+  <!-- Archive stamp frame -->
+  <g transform="translate(16 16) rotate(45)">
+    <rect x="-11" y="-11" width="22" height="22" fill="#141510" stroke="url(#jt-brass)" stroke-width="1.15"/>
+  </g>
+
+  <!-- JT monogram -->
+  <g fill="url(#jt-brass)" aria-hidden="true">
+    <path d="M10.6 11.2h1.35v6.55c0 1.05.55 1.55 1.35 1.55.45 0 .85-.12 1.15-.35l.55 1.05c-.55.35-1.25.55-2 .55-1.65 0-2.4-1-2.4-2.55V11.2Z"/>
+    <path d="M16.35 11.2h5.05v1.2h-1.85v7.35h-1.35v-7.35h-1.85v-1.2Z"/>
+  </g>
+
+  <!-- Oxide catalog mark -->
+  <path d="M5 27.5h5.5" stroke="#a84636" stroke-width="1.35" stroke-linecap="square"/>
+  <circle cx="27" cy="5" r="1.1" fill="#a84636" opacity="0.85"/>
+</svg>
