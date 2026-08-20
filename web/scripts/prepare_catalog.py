@@ -8,6 +8,7 @@ import concurrent.futures
 import json
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,23 @@ PLACEHOLDER = {
     "width": 720,
     "height": 720,
 }
+
+
+def parse_scraped_at(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def latest_scrape_day(products: list[dict[str, Any]]) -> datetime.date | None:
+    timestamps = [
+        parsed
+        for product in products
+        if (parsed := parse_scraped_at(product.get("scraped_at"))) is not None
+    ]
+    if not timestamps:
+        return None
+    return max(timestamps).date()
 
 
 def source_for_catalog_path(value: str) -> Path | None:
@@ -128,6 +146,8 @@ def prepare(*, skip_images: bool, thumbs_only: bool = False) -> None:
                 continue
             stale.unlink()
 
+    latest_day = latest_scrape_day(raw["products"])
+
     products: list[dict[str, Any]] = []
     missing_images = 0
     for product in raw["products"]:
@@ -176,6 +196,12 @@ def prepare(*, skip_images: bool, thumbs_only: bool = False) -> None:
             else PLACEHOLDER
         )
 
+        scraped_at = product.get("scraped_at")
+        scraped_time = parse_scraped_at(scraped_at)
+        is_latest = bool(
+            latest_day and scraped_time and scraped_time.date() == latest_day
+        )
+
         products.append(
             {
                 "slug": slug,
@@ -191,6 +217,8 @@ def prepare(*, skip_images: bool, thumbs_only: bool = False) -> None:
                 "material": product.get("material") or None,
                 "size": product.get("size") or None,
                 "sizeCm": product.get("size_cm"),
+                "updatedAt": scraped_at or None,
+                "isLatest": is_latest,
                 "thumbnail": thumbnail,
                 "galleryCount": len(gallery),
                 "gallery": gallery,
@@ -218,9 +246,11 @@ def prepare(*, skip_images: bool, thumbs_only: bool = False) -> None:
         {key: value for key, value in product.items() if key not in {"gallery", "boxContents"}}
         for product in products
     ]
+    latest_count = sum(1 for product in products if product["isLatest"])
     index = {
         "generatedAt": catalog["generatedAt"],
         "productCount": catalog["productCount"],
+        "latestCount": latest_count,
         "categories": categories,
         "products": summaries,
     }

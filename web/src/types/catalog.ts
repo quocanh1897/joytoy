@@ -28,6 +28,8 @@ export interface CatalogProductSummary {
   material: string | null;
   size: string | null;
   sizeCm: number | null;
+  updatedAt: string | null;
+  isLatest: boolean;
   thumbnail: CatalogImage;
   galleryCount: number;
   stock: CatalogStock | null;
@@ -55,6 +57,7 @@ export interface CatalogData {
 export interface CatalogIndex {
   generatedAt: string | null;
   productCount: number;
+  latestCount: number;
   categories: CatalogCategory[];
   products: CatalogProductSummary[];
 }

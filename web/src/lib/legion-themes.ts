@@ -142,7 +142,8 @@ export function buildLegionThemeCss(): string {
 
   return `${defaultBlock}
 ${categoryBlocks.join("\n")}
-html[data-catalog-category=""] {
+html[data-catalog-category=""],
+html[data-catalog-category="latest"] {
   ${themeVars(DEFAULT_LEGION_THEME)}
 }
 html,

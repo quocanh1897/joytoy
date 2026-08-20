@@ -1,5 +1,7 @@
 import type { CatalogProductSummary } from "../types/catalog";
 
+export const LATEST_CATEGORY_ID = "latest";
+
 export type SortMode = "name" | "name-desc" | "price-asc" | "price-desc";
 
 export interface FilterState {
@@ -32,12 +34,20 @@ export function filterAndSort(
 ): CatalogProductSummary[] {
   const query = normalizeSearch(state.query);
   const filtered = products.filter((product) => {
-    if (state.category && product.categoryId !== state.category) return false;
+    if (state.category === LATEST_CATEGORY_ID) {
+      if (!product.isLatest) return false;
+    } else if (state.category && product.categoryId !== state.category) {
+      return false;
+    }
     if (state.shopOnly && !product.stock) return false;
     return !query || searchableText(product).includes(query);
   });
 
   return filtered.toSorted((left, right) => {
+    if (state.category === LATEST_CATEGORY_ID) {
+      const byUpdated = (right.updatedAt ?? "").localeCompare(left.updatedAt ?? "");
+      if (byUpdated !== 0) return byUpdated;
+    }
     if (state.sort === "name-desc") return right.name.localeCompare(left.name);
     if (state.sort === "price-asc") {
       return (left.priceUsd ?? Number.POSITIVE_INFINITY) - (right.priceUsd ?? Number.POSITIVE_INFINITY);

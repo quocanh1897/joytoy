@@ -469,6 +469,12 @@ select:focus-visible {
   font-weight: 400;
 }
 
+.category-link--latest {
+  margin-bottom: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
 .category-link:hover,
 .category-link.active {
   border-left-color: var(--brass);

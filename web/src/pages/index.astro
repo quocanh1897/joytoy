@@ -3,10 +3,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import CatalogBootstrap from "../components/CatalogBootstrap.astro";
 import ProductCard from "../components/ProductCard.astro";
 import SiteHeader from "../components/SiteHeader.astro";
+import { LATEST_CATEGORY_ID } from "../lib/catalog-filter";
 import catalogJson from "../generated/catalog.json";
 import type { CatalogData } from "../types/catalog";
 
 const catalog = catalogJson as CatalogData;
+const latestCount = catalog.products.filter((product) => product.isLatest).length;
 const initialProducts = catalog.products.slice(0, 36);
 const inShop = catalog.products.filter((product) => product.stock).length;
 const galleryImages = catalog.products.reduce((total, product) => total + product.galleryCount, 0);
@@ -52,6 +54,10 @@ const scrapedDate = catalog.generatedAt
             <button class="category-link" type="button" data-category="" aria-pressed="false">
               <span data-en="All formations" data-vi="Tất cả đội hình">All formations</span>
               <strong>{catalog.productCount}</strong>
+            </button>
+            <button class="category-link category-link--latest" type="button" data-category={LATEST_CATEGORY_ID} aria-pressed="false">
+              <span data-en="Latest" data-vi="Mới cập nhật">Latest</span>
+              <strong>{latestCount}</strong>
             </button>
             {catalog.categories.map((category) => (
               <button class="category-link" type="button" data-category={category.id} aria-pressed="false">

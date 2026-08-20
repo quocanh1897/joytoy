@@ -11,6 +11,7 @@ const { categories } = Astro.props;
 
 const selectedSelectors = [
   'html[data-catalog-category=""] .category-link[data-category=""]',
+  'html[data-catalog-category="latest"] .category-link[data-category="latest"]',
   ...categories.map((category) => `html[data-catalog-category="${category.id}"] .category-link[data-category="${category.id}"]`),
 ];
 const bootstrapCss = `

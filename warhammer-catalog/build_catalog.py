@@ -388,6 +388,7 @@ def build_product(product: dict, stock_by_slug: dict[str, dict]) -> dict:
         "thumb": resolve_thumb(product, images),
         "images": images,
         "box_contents": parse_box_contents(product.get("description_text") or ""),
+        "scraped_at": product.get("scraped_at"),
     }
 
     if stock:

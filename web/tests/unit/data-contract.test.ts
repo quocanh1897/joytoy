@@ -13,6 +13,7 @@ describe("generated catalog contract", () => {
     expect(new Set(products.map((product) => product.slug)).size).toBe(productCount);
     expect(productCount).toBeGreaterThan(500);
     expect(catalog.categories.length).toBeGreaterThan(30);
+    expect(products.some((product) => product.isLatest)).toBe(true);
   });
 
   it("references static media instead of embedded images", () => {
