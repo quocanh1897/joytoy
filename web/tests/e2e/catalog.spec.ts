@@ -9,12 +9,23 @@ function matchingModelsLabel(count: number): string {
   return count === 1 ? "1 matching model" : `${count} matching models`;
 }
 
-async function inShopCount(page: Page): Promise<number> {
-  return page.evaluate(async () => {
+async function inShopCount(page: Page, categoryId = "latest"): Promise<number> {
+  return page.evaluate(async (category) => {
     const response = await fetch("/data/catalog-index.json");
-    const catalog = (await response.json()) as { products: Array<{ stock: unknown }> };
-    return catalog.products.filter((product) => product.stock).length;
-  });
+    const catalog = (await response.json()) as {
+      products: Array<{ stock: unknown; isLatest?: boolean; categoryId?: string }>;
+    };
+    return catalog.products.filter((product) => {
+      if (!product.stock) return false;
+      if (category === "latest") return Boolean(product.isLatest);
+      if (category) return product.categoryId === category;
+      return true;
+    }).length;
+  }, categoryId);
+}
+
+function visibleCardCount(total: number): number {
+  return Math.min(36, total);
 }
 
 test("searches the archive and opens a product record", async ({ page }) => {
@@ -23,7 +34,13 @@ test("searches the archive and opens a product record", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: /Factions/i })).toBeVisible();
-  await expect(page.locator("[data-product-card]")).toHaveCount(36);
+  const latestCount = await sidebarCategoryCount(page, "latest");
+  await expect(page.locator('[data-category="latest"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page).toHaveURL(/category=latest/);
+  await expect(page.locator("[data-result-count]")).toHaveText(matchingModelsLabel(latestCount));
+  await expect(page.locator("[data-product-card]")).toHaveCount(visibleCardCount(latestCount));
+  await page.locator('[data-category=""]').click();
+  await expect(page.locator('[data-category=""]')).toHaveAttribute("aria-pressed", "true");
   await page.locator("[data-catalog-search]").fill("Morvenn Vahl");
   await expect(page.locator("[data-result-count]")).toHaveText("1 matching model");
   await expect(page.locator("[data-product-card]")).toHaveCount(1);
@@ -56,18 +73,18 @@ test("filters local inventory and switches language", async ({ page }) => {
   await expect(page.getByText("Danh mục", { exact: true })).toBeVisible();
 });
 
-test("filters latest models from the sidebar", async ({ page }) => {
+test("shows latest models by default", async ({ page }) => {
   await page.goto("/");
   const latestCount = await sidebarCategoryCount(page, "latest");
-  await page.locator('[data-category="latest"]').click();
-  await expect(page).toHaveURL(/category=latest/);
   await expect(page.locator('[data-category="latest"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page).toHaveURL(/category=latest/);
   await expect(page.locator("[data-result-count]")).toHaveText(matchingModelsLabel(latestCount));
-  await expect(page.locator("[data-product-card]")).toHaveCount(latestCount);
+  await expect(page.locator("[data-product-card]")).toHaveCount(visibleCardCount(latestCount));
 });
 
 test("persists category and sort state in the URL", async ({ page }) => {
   await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-catalog-ready", "");
   const primarchCount = await sidebarCategoryCount(page, "primarch");
   await page.locator('[data-category="primarch"]').click();
   await expect(page.locator("[data-result-count]")).toHaveText(matchingModelsLabel(primarchCount));

@@ -42,13 +42,13 @@ ${selectedSelectors.map((selector) => `${selector} strong`).join(",\n")} {
     var hasUrlState = ["q", "category", "shop", "sort"].some(function (key) {
       return params.has(key);
     });
-    var category = "";
+    var category = "latest";
     if (hasUrlState) {
       category = params.get("category") || "";
     } else {
       try {
         var saved = JSON.parse(sessionStorage.getItem("jt-catalog-state") || "{}");
-        category = typeof saved.category === "string" ? saved.category : "";
+        category = typeof saved.category === "string" ? saved.category : "latest";
       } catch (error) {}
     }
     document.documentElement.dataset.catalogCategory = category;

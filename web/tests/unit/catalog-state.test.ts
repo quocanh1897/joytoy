@@ -23,4 +23,13 @@ describe("catalog-state", () => {
       sort: "name-desc",
     });
   });
+
+  it("defaults to the latest category when no URL or saved state exists", () => {
+    expect(resolveCatalogState("")).toEqual({
+      query: "",
+      category: "latest",
+      shopOnly: false,
+      sort: "name",
+    });
+  });
 });

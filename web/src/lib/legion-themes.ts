@@ -28,7 +28,7 @@ export const DEFAULT_LEGION_THEME: LegionTheme = {
   header: "rgb(18 19 15 / 97%)",
 };
 
-type LegionDef = { h: number; s: number; l: number } | "neutral" | "default";
+type LegionDef = { h: number; s: number; l: number } | "neutral" | "default" | "white";
 
 /** Hue/sat/light presets — expanded into full surface palettes at build time. */
 export const LEGION_DEFS: Record<string, LegionDef> = {
@@ -65,7 +65,7 @@ export const LEGION_DEFS: Record<string, LegionDef> = {
   tyranids: { h: 282, s: 52, l: 44 },
   ultramarines: { h: 220, s: 72, l: 50 },
   "white-consuls": { h: 218, s: 42, l: 58 },
-  "white-scars": { h: 4, s: 68, l: 50 },
+  "white-scars": "white",
   "world-eaters": { h: 0, s: 78, l: 44 },
   other: "default",
 };
@@ -107,9 +107,27 @@ function buildNeutralTheme(): LegionTheme {
   };
 }
 
+function buildWhiteLegionTheme(): LegionTheme {
+  return {
+    base: "#101112",
+    glow: "rgb(255 255 255 / 40%)",
+    grid: "rgb(255 255 255 / 12%)",
+    ink: "#151618",
+    inkSoft: "#1c1e21",
+    panel: "#24272b",
+    line: "#3a3f45",
+    lineBright: "#565c64",
+    accent: "#f2f2ee",
+    accentBright: "#ffffff",
+    highlight: "rgb(255 255 255 / 26%)",
+    header: "rgb(16 17 19 / 97%)",
+  };
+}
+
 function expandLegionDef(def: LegionDef): LegionTheme {
   if (def === "default") return DEFAULT_LEGION_THEME;
   if (def === "neutral") return buildNeutralTheme();
+  if (def === "white") return buildWhiteLegionTheme();
   return buildFromHue(def.h, def.s, def.l);
 }
 

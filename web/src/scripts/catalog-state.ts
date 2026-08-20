@@ -1,4 +1,5 @@
 import type { SortMode } from "../lib/catalog-filter";
+import { LATEST_CATEGORY_ID } from "../lib/catalog-filter";
 
 export interface CatalogUiState {
   query: string;
@@ -52,6 +53,8 @@ export function catalogHomeUrl(state: Partial<CatalogUiState> = readCatalogState
   return query ? `/?${query}` : "/";
 }
 
+export const DEFAULT_CATALOG_CATEGORY = LATEST_CATEGORY_ID;
+
 export function resolveCatalogState(search = location.search): CatalogUiState {
   const params = new URLSearchParams(search);
   const saved = readCatalogState();
@@ -68,7 +71,7 @@ export function resolveCatalogState(search = location.search): CatalogUiState {
 
   return {
     query: saved.query ?? "",
-    category: saved.category ?? "",
+    category: saved.category ?? DEFAULT_CATALOG_CATEGORY,
     shopOnly: saved.shopOnly ?? false,
     sort: saved.sort ?? "name",
   };

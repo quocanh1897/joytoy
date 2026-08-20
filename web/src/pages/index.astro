@@ -9,7 +9,12 @@ import type { CatalogData } from "../types/catalog";
 
 const catalog = catalogJson as CatalogData;
 const latestCount = catalog.products.filter((product) => product.isLatest).length;
-const initialProducts = catalog.products.slice(0, 36);
+const latestProducts = catalog.products
+  .filter((product) => product.isLatest)
+  .toSorted((left, right) => (right.updatedAt ?? "").localeCompare(left.updatedAt ?? ""));
+const initialProducts = latestProducts.slice(0, 36);
+const initialResultLabel =
+  latestCount === 1 ? "1 matching model" : `${latestCount} matching models`;
 const inShop = catalog.products.filter((product) => product.stock).length;
 const galleryImages = catalog.products.reduce((total, product) => total + product.galleryCount, 0);
 const scrapedDate = catalog.generatedAt
@@ -21,6 +26,7 @@ const scrapedDate = catalog.generatedAt
   title="JoyToy Warhammer Field Archive"
   description={`A fast, bilingual field archive of ${catalog.productCount} official JoyToy Warhammer action figures, with local stock and detailed image plates.`}
   bodyClass="catalog-page"
+  legionCategory={LATEST_CATEGORY_ID}
 >
   <CatalogBootstrap slot="head" categories={catalog.categories} />
 
@@ -51,13 +57,13 @@ const scrapedDate = catalog.generatedAt
             </div>
           </div>
           <nav class="category-nav" data-category-nav aria-label="Product categories">
-            <button class="category-link" type="button" data-category="" aria-pressed="false">
-              <span data-en="All formations" data-vi="Tất cả đội hình">All formations</span>
-              <strong>{catalog.productCount}</strong>
-            </button>
             <button class="category-link category-link--latest" type="button" data-category={LATEST_CATEGORY_ID} aria-pressed="false">
               <span data-en="Latest" data-vi="Mới cập nhật">Latest</span>
               <strong>{latestCount}</strong>
+            </button>
+            <button class="category-link" type="button" data-category="" aria-pressed="false">
+              <span data-en="All formations" data-vi="Tất cả đội hình">All formations</span>
+              <strong>{catalog.productCount}</strong>
             </button>
             {catalog.categories.map((category) => (
               <button class="category-link" type="button" data-category={category.id} aria-pressed="false">
@@ -105,7 +111,7 @@ const scrapedDate = catalog.generatedAt
           </div>
 
           <div class="result-bar">
-            <p data-result-count>{catalog.productCount} matching models</p>
+            <p data-result-count>{initialResultLabel}</p>
             <span data-en="Live index / static archive" data-vi="Chỉ mục trực tiếp / kho tĩnh">Live index / static archive</span>
           </div>
           <p class="catalog-error" data-catalog-error hidden></p>
