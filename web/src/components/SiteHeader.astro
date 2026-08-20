@@ -1,9 +1,13 @@
 ---
+import catalogJson from "../generated/catalog.json";
+import type { CatalogData } from "../types/catalog";
+
 interface Props {
   compact?: boolean;
 }
 
 const { compact = false } = Astro.props;
+const catalogCount = (catalogJson as CatalogData).productCount;
 ---
 
 <header class:list={["site-header", { compact }]}>
@@ -15,7 +19,7 @@ const { compact = false } = Astro.props;
     </span>
   </a>
   <div class="header-actions">
-    <span class="edition">Catalog 541</span>
+    <span class="edition">Catalog {catalogCount}</span>
     <button class="language-toggle" type="button" data-language-toggle aria-label="Switch language">VI</button>
   </div>
 </header>

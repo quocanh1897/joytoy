@@ -17,7 +17,7 @@ const scrapedDate = catalog.generatedAt
 
 <BaseLayout
   title="JoyToy Warhammer Field Archive"
-  description="A fast, bilingual field archive of 541 official JoyToy Warhammer action figures, with local stock and detailed image plates."
+  description={`A fast, bilingual field archive of ${catalog.productCount} official JoyToy Warhammer action figures, with local stock and detailed image plates.`}
   bodyClass="catalog-page"
 >
   <CatalogBootstrap slot="head" categories={catalog.categories} />
@@ -35,7 +35,7 @@ const scrapedDate = catalog.generatedAt
         </dl>
         <div class="edition-note">
           <span>{scrapedDate}</span>
-          <span>WH–JT / 001–541</span>
+          <span>WH–JT / 001–{String(catalog.productCount).padStart(3, "0")}</span>
         </div>
       </section>
 

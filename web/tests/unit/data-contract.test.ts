@@ -8,9 +8,10 @@ const catalog = JSON.parse(
 
 describe("generated catalog contract", () => {
   it("contains unique, routable product records", () => {
-    expect(catalog.productCount).toBe(541);
-    expect(catalog.products).toHaveLength(541);
-    expect(new Set(catalog.products.map((product) => product.slug)).size).toBe(541);
+    const { productCount, products } = catalog;
+    expect(productCount).toBe(products.length);
+    expect(new Set(products.map((product) => product.slug)).size).toBe(productCount);
+    expect(productCount).toBeGreaterThan(500);
     expect(catalog.categories.length).toBeGreaterThan(30);
   });
 
