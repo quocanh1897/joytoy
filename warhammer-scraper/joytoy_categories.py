@@ -83,9 +83,116 @@ JOYTOY_CATEGORIES: list[JoyToyCategory] = [
     JoyToyCategory("world-eaters", "World Eaters", "World Eaters", "/collections/world-eaters"),
 ]
 
-CATEGORY_ORDER = [cat.id for cat in JOYTOY_CATEGORIES]
-
 CATEGORY_BY_ID = {cat.id: cat for cat in JOYTOY_CATEGORIES}
+
+# Original Space Marine legion numerals for sidebar ordering and labels.
+LEGION_ROMAN: dict[str, str] = {
+    "dark-angels": "I",
+    "iron-warriors": "IV",
+    "white-scars": "V",
+    "space-wolves": "VI",
+    "imperial-fists": "VII",
+    "night-lords": "VIII",
+    "blood-angels": "IX",
+    "iron-hands": "X",
+    "world-eaters": "XII",
+    "ultramarines": "XIII",
+    "death-guard": "XIV",
+    "thousand-sons": "XV",
+    "sons-of-horus": "XVI",
+    "salamanders": "XVIII",
+    "raven-guard": "XIX",
+    "alpha-legion": "XX",
+}
+
+# Successor chapters — parent legion numeral.
+LEGION_SUCCESSOR: dict[str, str] = {
+    "black-templars": "VII",
+    "white-consuls": "XIII",
+}
+
+# Renamed / splinter Chaos legions — parent legion numeral.
+LEGION_CHAOS_EX: dict[str, str] = {
+    "black-legion": "XVI",
+}
+
+_ROMAN_VALUES = {
+    "I": 1,
+    "IV": 4,
+    "V": 5,
+    "VI": 6,
+    "VII": 7,
+    "VIII": 8,
+    "IX": 9,
+    "X": 10,
+    "XII": 12,
+    "XIII": 13,
+    "XIV": 14,
+    "XV": 15,
+    "XVI": 16,
+    "XVIII": 18,
+    "XIX": 19,
+    "XX": 20,
+}
+
+
+def legion_display_labels(cat_id: str, label_en: str, label_vi: str) -> tuple[str, str]:
+    roman = LEGION_ROMAN.get(cat_id)
+    if roman:
+        return f"Legion {roman}: {label_en}", f"Quân đoàn {roman}: {label_vi}"
+    successor = LEGION_SUCCESSOR.get(cat_id)
+    if successor:
+        return (
+            f"Legion {successor}-successor: {label_en}",
+            f"Quân đoàn {successor}-kế thừa: {label_vi}",
+        )
+    chaos_ex = LEGION_CHAOS_EX.get(cat_id)
+    if chaos_ex:
+        return (
+            f"Legion {chaos_ex}-ex: {label_en}",
+            f"Quân đoàn {chaos_ex}-ex: {label_vi}",
+        )
+    return label_en, label_vi
+
+
+def _sidebar_category_order() -> list[str]:
+    legion_ids = sorted(
+        LEGION_ROMAN.keys(),
+        key=lambda cat_id: _ROMAN_VALUES[LEGION_ROMAN[cat_id]],
+    )
+    successors_by_parent: dict[str, list[str]] = {}
+    for cat_id, roman in LEGION_SUCCESSOR.items():
+        successors_by_parent.setdefault(roman, []).append(cat_id)
+    chaos_ex_by_parent: dict[str, list[str]] = {}
+    for cat_id, roman in LEGION_CHAOS_EX.items():
+        chaos_ex_by_parent.setdefault(roman, []).append(cat_id)
+
+    ordered_legion_block: list[str] = []
+    for cat_id in legion_ids:
+        roman = LEGION_ROMAN[cat_id]
+        ordered_legion_block.append(cat_id)
+        for sid in sorted(
+            successors_by_parent.get(roman, []),
+            key=lambda sid: CATEGORY_BY_ID[sid].label_en.lower(),
+        ):
+            ordered_legion_block.append(sid)
+        for cid in sorted(
+            chaos_ex_by_parent.get(roman, []),
+            key=lambda cid: CATEGORY_BY_ID[cid].label_en.lower(),
+        ):
+            ordered_legion_block.append(cid)
+
+    labeled_ids = set(LEGION_ROMAN) | set(LEGION_SUCCESSOR) | set(LEGION_CHAOS_EX)
+    other_ids = [cat.id for cat in JOYTOY_CATEGORIES if cat.id not in labeled_ids]
+    primarch = ["primarch"] if "primarch" in other_ids else []
+    remaining = sorted(
+        [cat_id for cat_id in other_ids if cat_id != "primarch"],
+        key=lambda cat_id: CATEGORY_BY_ID[cat_id].label_en.lower(),
+    )
+    return primarch + ordered_legion_block + remaining
+
+
+CATEGORY_ORDER = _sidebar_category_order()
 
 
 def normalize_product_slug(href: str) -> str | None:

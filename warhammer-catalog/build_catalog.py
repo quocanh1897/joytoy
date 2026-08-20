@@ -18,7 +18,7 @@ SCRAPER_DIR = ROOT / "warhammer-scraper"
 sys.path.insert(0, str(SCRAPER_DIR))
 from scrape import extract_specs  # noqa: E402
 from size_extract import resolve_display_height_cm  # noqa: E402
-from joytoy_categories import CATEGORY_BY_ID, CATEGORY_ORDER, JOYTOY_CATEGORIES  # noqa: E402
+from joytoy_categories import CATEGORY_BY_ID, CATEGORY_ORDER, JOYTOY_CATEGORIES, legion_display_labels  # noqa: E402
 from stock_match import assign_stock_to_products  # noqa: E402
 
 try:
@@ -440,7 +440,15 @@ def build_catalog_data() -> dict:
     ordered_categories = []
     for cat_id in CATALOG_CATEGORY_ORDER:
         if cat_id in categories:
-            ordered_categories.append(categories[cat_id])
+            cat = categories[cat_id]
+            label_en, label_vi = legion_display_labels(cat_id, cat["label_en"], cat["label_vi"])
+            ordered_categories.append(
+                {
+                    **cat,
+                    "label_en": label_en,
+                    "label_vi": label_vi,
+                }
+            )
     for cat_id, cat in sorted(categories.items()):
         if cat_id not in CATALOG_CATEGORY_ORDER:
             ordered_categories.append(cat)
